@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  db:
+    container_name: smart_dash_db
+    ports:
+      - "6200:5432"
+    image: "postgres:13-bullseye"
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+    env_file:
+      - ./backend/.env_local
+    networks:
+      - db_nw
+
+  starlite:
+    container_name: smart_dash_backend
+    ports:
+      - "5200:5000"
+    env_file:
+      - ./backend/.env_local
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/app:cached
+      - ./backend/.cache:/home/developer/.cache
+    networks:
+      - db_nw
+    depends_on:
+      - db
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+  svelte:
+    container_name: smart_dash_frontend
+    ports:
+      - "3200:3020"
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/app:cached
+      - node_modules:/app/frontend/node_modules/
+    command: ["npm", "run", "dev"]
+
+networks:
+  db_nw:
+    driver: bridge
+volumes:
+  dbdata:
+  node_modules:
