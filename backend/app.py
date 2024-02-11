@@ -9,7 +9,7 @@ from litestar import Litestar, get
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 from litestar.contrib.sqlalchemy.plugins import AsyncSessionConfig, SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
 
-from controllers.product_controller import ProductCommandController
+from controllers.product_controller import ProductCommandController, ProductQueryController
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -30,7 +30,7 @@ async def on_startup() -> None:
 
 app = Litestar(
     debug=True,
-    route_handlers=[ProductCommandController],
+    route_handlers=[ProductCommandController, ProductQueryController],
     on_startup=[on_startup],
-    plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
+    plugins=[sqlalchemy_plugin],
 )
