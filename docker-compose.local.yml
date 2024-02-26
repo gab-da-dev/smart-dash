@@ -18,7 +18,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - "5500:8001"
+      - "5500:8000"
     environment:
       - PYTHONDONTWRITEBYTECODE=1
 

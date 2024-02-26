@@ -8,7 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from litestar import Litestar, get
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 from litestar.contrib.sqlalchemy.plugins import AsyncSessionConfig, SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
-
+from db.repositories.product_repository import provide_limit_offset_pagination
+from litestar.di import Provide
 from controllers.product_controller import ProductCommandController, ProductQueryController
 
 if TYPE_CHECKING:
@@ -32,5 +33,6 @@ app = Litestar(
     debug=True,
     route_handlers=[ProductCommandController, ProductQueryController],
     on_startup=[on_startup],
-    plugins=[sqlalchemy_plugin],
+    plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
+    dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},
 )
