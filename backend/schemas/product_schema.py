@@ -24,10 +24,10 @@ class ProductRead(BaseModel):
     name: str
     description: str
     image: str
-    product_category_id: str | None
+    product_category_id: UUID
     price: float
     prep_time: str
-    product_ingredients:list[ProductIngredient]
+    # product_ingredients:list[ProductIngredient]
 
 
 class ProductUpdate(BaseSchema):
@@ -45,7 +45,7 @@ class ProductCreate(BaseModel):
         orm_mode = True
 
     active: bool
-    title: str
+    name: str
     description: str
     image: str
     product_category_id: str

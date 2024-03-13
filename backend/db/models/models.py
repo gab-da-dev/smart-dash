@@ -11,7 +11,6 @@ class Product(UUIDAuditBase):
     __tablename__ = "product"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
-    title: Mapped[str] = mapped_column(Text(), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     description: Mapped[str] = mapped_column(Text(), nullable=False)
     image: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -19,19 +18,28 @@ class Product(UUIDAuditBase):
     price:  Mapped[float] = mapped_column(Float(), nullable=False)
     prep_time: Mapped[str] = mapped_column(Text(), nullable=False)
     # size_pricing: Mapped[Author] = relationship(lazy="joined", innerjoin=True, viewonly=True)
-    product_ingredients: Mapped[list["ProductIngredient"]] = relationship(lazy="selectin")
+    # product_ingredients: Mapped[list["ProductIngredient"]] = relationship(lazy="noload")
 
 
 class ProductIngredient(UUIDAuditBase):
 
-    __tablename__ = "product_ingredient"
+    __tablename__ = "product_ingredients"
+
+    product_id: Mapped[UUID] = mapped_column(Uuid(),ForeignKey("product.id"), nullable=True)
+    ingredient_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("ingredient.id"), nullable=True)
+
+    # product: Mapped[Product] = relationship()
+
+class Ingredient(UUIDAuditBase):
+
+    __tablename__ = "ingredient"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     price: Mapped[str] = mapped_column(Text(), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("product.id"))
+    # product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("product.id"))
 
-    product: Mapped[Product] = relationship()
+    # product: Mapped[Product] = relationship()
 
 class ProductCategory(UUIDAuditBase):
 

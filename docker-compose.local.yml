@@ -18,9 +18,10 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - "5500:8000"
+      - 5800:8000
     environment:
       - PYTHONDONTWRITEBYTECODE=1
+    command: sh -c "uvicorn app:app --reload"
 
   frontend:
     image: node:alpine
