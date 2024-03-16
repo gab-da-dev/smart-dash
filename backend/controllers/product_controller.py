@@ -30,27 +30,14 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class ProductCommandController(Controller):
-    path = "/product"
-    # dependencies: ClassVar[dict[str, Provide]] = {"service": Provide(get_company_service)}
-    # tags: ClassVar[list[str]] = ["product_command"]
 
-    @post()
-    async def add(self, data: ProductCreate, db_session: "AsyncSession", db_engine: "AsyncEngine") -> ProductRead:
-        product = models.Product(name=data.name,active=data.active,description=data.description,image=data.image,product_category_id=data.product_category_id,price=data.price,prep_time=data.prep_time)
-        db_session.add(product)
-        await db_session.commit()
-        return ProductRead.from_orm(product)
-        # return {"data": product.to_dict()}
-    
-
-class ProductQueryController(Controller):
+class ProductController(Controller):
     path = "/product"
     dependencies:ClassVar[dict[str, Provide]] = {"repository": Provide(provide_products_repo)}
 
-    tags: ClassVar[list[str]] = ["product_query"]
+    tags: ClassVar[list[str]] = ["product"]
 
-    @post(path="/products")
+    @post(path="/")
     async def create_product(
         self,
         repository: ProductRepository,
@@ -78,10 +65,8 @@ class ProductQueryController(Controller):
         """Get an existing product."""
         
         obj = await products_repo.get(product_id)
-        try:
-            return ProductRead.model_validate(obj)
-        except NotFoundError as e:
-            raise RepositoryNotFoundException("file not found on accessory")
+        # obj = await products_repo.get_one_or_none(product_id)
+        return ProductRead.model_validate(obj)
         
     # TODO: check how to put in a not found exception
     
