@@ -82,12 +82,8 @@ class User(UUIDAuditBase):
 
     # orders: Mapped[list["Order"]] = relationship(lazy="join")
 
-
-
-
 class Order(UUIDAuditBase):
-
-    __tablename__ = "order_detail"
+    __tablename__ = "order"
 
     address: Mapped[str] = mapped_column(Text(), nullable=True)
     collect_status: Mapped[bool] = mapped_column(Boolean(), nullable=True)
@@ -107,6 +103,19 @@ class Order(UUIDAuditBase):
     skip_comment: Mapped[bool] = mapped_column(Boolean(), nullable=True)
     user_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("user.id"))
 
+    #relationship
+    order: Mapped[list["OrderProduct"]] = relationship(lazy="selectin")
+
+
+class OrderProduct(UUIDAuditBase):
+
+    __tablename__ = "order_product"
+
+    order_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("order.id"))
+    product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("product.id"))
+    note: Mapped[str] = mapped_column(Text(), nullable=True)
+    quantity: Mapped[int] = mapped_column(Integer(),default=1)
+    price: Mapped[float] = mapped_column(Float(), nullable=False)
     # user: Mapped[User] = relationship(back_populates="orders", lazy="selectin")
 
 

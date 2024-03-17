@@ -15,12 +15,11 @@ from litestar.handlers.http_handlers.decorators import delete, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from db.models import models
-from schemas.order_schema import OrderCreate, OrderRead, OrderUpdate
-from db.models.models import Order
+from schemas.order_schema import OrderCreate, OrderProductCreate, OrderRead, OrderUpdate
+from db.models.models import Order, OrderProduct
 
 from db.repositories.order_repository import OrderRepository, provide_order_details_repo, provide_order_repo
-
+from db.repositories.order_product_repository import OrderProductRepository, provide_order_product_details_repo, provide_order_product_repo
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,22 +31,34 @@ class OrderController(Controller):
 
     tags: ClassVar[list[str]] = ["order"]
 
-    @post(path="/")
+    @post(path="/", dependencies={"order_product_repo": Provide(provide_order_product_repo)})
     async def create_order(
         self,
         repository: OrderRepository,
+        order_product_repo: OrderProductRepository,
         data: OrderCreate,
     ) -> OrderRead:
         """Create a new Order."""
         obj = await repository.add(
-            Order(**data.model_dump(exclude_unset=True, exclude_none=True)),
+            Order(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['order'])),
 
         )
         await repository.session.commit()
+
+        order_product = data.order
+        order_array = []
+        
+        for order in order_product:
+            order_product_obj = order.model_dump()
+            order_product_obj['order_id'] = obj.id
+            order_array.append(order_product_obj)
+            await order_product_repo.add(OrderProduct(order_id=order_product_obj['order_id'],note=order_product_obj['note'],product_id=order_product_obj['product_id'],quantity=order_product_obj['quantity'],price=order_product_obj['price']))
+        
+        await order_product_repo.session.commit()
+        
         return OrderRead.model_validate(obj)
 
-        # we override the orders_repo to use the version that joins the Books in
-
+       
     @get(path="/{order_id:uuid}", dependencies={"orders_repo": Provide(provide_order_details_repo)})
     async def get_order(
         self,

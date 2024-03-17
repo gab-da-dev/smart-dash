@@ -1,3 +1,6 @@
+
+from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel as _BaseModel
@@ -16,14 +19,33 @@ class Order(BaseModel):
         orm_mode = True
     
     product_id: UUID
+    order_id: UUID
     quantity: int
     price: float
     note: str
+
+class OrderProduct(BaseModel):
+    class Config:
+        orm_mode = True
+    
+    product_id: UUID
+    quantity: int
+    price: float
+    note: str
+
+class OrderProductCreate(BaseModel):
+    class Config:
+        orm_mode = True
+    
+    products: list[Order]
+
+
 class OrderRead(BaseModel):
     class Config:
         orm_mode = True
 
     id: UUID
+    user_id: UUID 
     address: str 
     collect_status: bool 
     delivery_status: str 
@@ -40,10 +62,12 @@ class OrderRead(BaseModel):
     driver_comment: str 
     status: bool 
     skip_comment: bool 
-    user_id: UUID 
+    created_at: datetime
+    order: list[OrderProduct]
 
 
 class OrderUpdate(BaseSchema):
+    user_id: UUID 
     collect_status: bool 
     delivery_status: str 
     delivery_cost: str 
@@ -58,13 +82,13 @@ class OrderUpdate(BaseSchema):
     driver_comment: str 
     status: bool 
     skip_comment: bool 
-    user_id: UUID 
 
 
 class OrderCreate(BaseModel):
     class Config:
         orm_mode = True
 
+    user_id: UUID 
     address: str 
     collect_status: bool 
     delivery_status: str 
@@ -81,5 +105,5 @@ class OrderCreate(BaseModel):
     driver_comment: str 
     status: bool 
     skip_comment: bool 
-    user_id: UUID 
+    order: list[OrderProduct]
 
