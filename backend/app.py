@@ -13,6 +13,7 @@ from controllers.product__category_controller import ProductCategoryController
 from db.repositories.product_repository import provide_limit_offset_pagination
 from litestar.di import Provide
 from controllers.product_controller import ProductController
+from controllers.order_controller import OrderController
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -33,7 +34,7 @@ async def on_startup() -> None:
 
 app = Litestar(
     debug=True,
-    route_handlers=[ProductController,ProductCategoryController,StoreProfileController],
+    route_handlers=[ProductController,ProductCategoryController,StoreProfileController, OrderController],
     on_startup=[on_startup],
     plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
     dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},

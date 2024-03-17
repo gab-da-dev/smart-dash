@@ -5,6 +5,8 @@ from uuid import UUID
 from sqlalchemy import Float, ForeignKey, Text, Uuid, select
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 
+from src.enums import OrderType, Rating
+
 
 class Product(UUIDAuditBase):
 
@@ -87,22 +89,22 @@ class Order(UUIDAuditBase):
 
     __tablename__ = "order"
 
-    address: Mapped[str] = mapped_column(Text(), nullable=False)
-    collect_status: Mapped[str] = mapped_column(Text(), nullable=False)
-    delivery_status: Mapped[str] = mapped_column(Text(), nullable=False)
-    delivery_cost: Mapped[str] = mapped_column(Text(), nullable=False)
-    distance: Mapped[str] = mapped_column(Text(), nullable=False)
-    driver_latitude: Mapped[str] = mapped_column(Text(), nullable=False)
-    driver_longitude: Mapped[str] = mapped_column(Text(), nullable=False)
-    latitude: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    longitude: Mapped[str] = mapped_column(Text(), nullable=False)
-    order: Mapped[str] = mapped_column(Text(), nullable=False)
-    order_type: Mapped[str] = mapped_column(Text(), nullable=False)
-    food_rating: Mapped[str] = mapped_column(Text(), nullable=False)
-    rating_description: Mapped[str] = mapped_column(Text(), nullable=False)
-    driver_rating: Mapped[str] = mapped_column(Text(), nullable=False)
-    status: Mapped[str] = mapped_column(Text(), nullable=False)
-    skip_comment: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    address: Mapped[str] = mapped_column(Text(), nullable=True)
+    collect_status: Mapped[bool] = mapped_column(Boolean(), nullable=True)
+    delivery_status: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_cost: Mapped[str] = mapped_column(Text(), nullable=True)
+    distance: Mapped[str] = mapped_column(Text(), nullable=True)
+    driver_latitude: Mapped[str] = mapped_column(Text(), nullable=True)
+    driver_longitude: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_latitude: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_longitude: Mapped[str] = mapped_column(Text(), nullable=True)
+    order_type: Mapped[OrderType] = mapped_column(Enum(OrderType), nullable=True)
+    food_rating: Mapped[Rating] = mapped_column(Enum(Rating), nullable=True)
+    food_comment: Mapped[str] = mapped_column(Text(), nullable=True)
+    driver_rating: Mapped[Rating] = mapped_column(Enum(Rating), nullable=True)
+    driver_comment: Mapped[str] = mapped_column(Text(), nullable=True)
+    status: Mapped[bool] = mapped_column(Boolean(), nullable=True)
+    skip_comment: Mapped[bool] = mapped_column(Boolean(), nullable=True)
     user_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("user.id"))
 
     # user: Mapped[User] = relationship(back_populates="orders", lazy="selectin")
