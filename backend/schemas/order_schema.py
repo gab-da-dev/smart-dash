@@ -11,6 +11,14 @@ class BaseModel(_BaseModel):
 
     model_config = {"from_attributes": True}
 
+class Order(BaseModel):
+    class Config:
+        orm_mode = True
+    
+    product_id: UUID
+    quantity: int
+    price: float
+    note: str
 class OrderRead(BaseModel):
     class Config:
         orm_mode = True

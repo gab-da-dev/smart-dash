@@ -87,7 +87,7 @@ class User(UUIDAuditBase):
 
 class Order(UUIDAuditBase):
 
-    __tablename__ = "order"
+    __tablename__ = "order_detail"
 
     address: Mapped[str] = mapped_column(Text(), nullable=True)
     collect_status: Mapped[bool] = mapped_column(Boolean(), nullable=True)
