@@ -20,8 +20,9 @@ class Product(UUIDAuditBase):
     price:  Mapped[float] = mapped_column(Float(), nullable=False)
     prep_time: Mapped[str] = mapped_column(Text(), nullable=False)
     # size_pricing: Mapped[Author] = relationship(lazy="joined", innerjoin=True, viewonly=True)
-    # product_ingredients: Mapped[list["ProductIngredient"]] = relationship(lazy="noload")
-
+    #relationship
+    product_ingredients: Mapped[list["Ingredient"]] = relationship(lazy="selectin")
+    # order: Mapped[list["OrderProduct"]] = relationship(lazy="selectin")
 
 class ProductIngredient(UUIDAuditBase):
 
@@ -39,8 +40,7 @@ class Ingredient(UUIDAuditBase):
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     price: Mapped[str] = mapped_column(Text(), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    # product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("product.id"))
-
+    
     # product: Mapped[Product] = relationship()
 
 class ProductCategory(UUIDAuditBase):

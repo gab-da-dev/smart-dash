@@ -10,8 +10,18 @@ class BaseModel(_BaseModel):
 
     model_config = {"from_attributes": True}
 
-class ProductIngredient(BaseModel):
+class ProductIngredientCreate(BaseModel):
+    product_id: UUID
+    ingredient_id: UUID
+
+class ProductIngredientRead(BaseModel):
+    id: UUID
     name: str
+    price: str
+
+
+class ProductIngredientUpdate(BaseModel):
+    product_id: str
     active: bool
     price: str
     
@@ -21,18 +31,18 @@ class ProductRead(BaseModel):
 
     id: UUID
     active: bool
-    name: str
+    product_id: str
     description: str
     image: str
     product_category_id: UUID
     price: float
     prep_time: str
-    # product_ingredients:list[ProductIngredient]
+    product_ingredients:list[ProductIngredientRead]
 
 
 class ProductUpdate(BaseSchema):
     active: bool
-    name: str
+    product_id: str
     description: str
     image: str
     product_category_id: str
@@ -45,7 +55,7 @@ class ProductCreate(BaseModel):
         orm_mode = True
 
     active: bool
-    name: str
+    product_id: str
     description: str
     image: str
     product_category_id: str
