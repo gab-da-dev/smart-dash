@@ -25,7 +25,7 @@ class ProductIngredientRepository(SQLAlchemyAsyncRepository[ProductIngredient]):
     model_type = ProductIngredient
 
 
-async def provide_ProductIngredients_repo(db_session: AsyncSession) -> ProductIngredientRepository:
+async def provide_product_ingredients_repo(db_session: AsyncSession) -> ProductIngredientRepository:
     """This provides the default ProductIngredients repository."""
     return ProductIngredientRepository(session=db_session)
 

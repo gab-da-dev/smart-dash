@@ -11,13 +11,19 @@ class BaseModel(_BaseModel):
     model_config = {"from_attributes": True}
 
 class ProductIngredientCreate(BaseModel):
-    product_id: UUID
+    # product_id: UUID
     ingredient_id: UUID
+
+
+class IngredientRead(BaseModel):
+    id: UUID
+    name: str
+    active: bool
+    price: str
 
 class ProductIngredientRead(BaseModel):
     id: UUID
-    name: str
-    price: str
+    ingredient:IngredientRead
 
 
 class ProductIngredientUpdate(BaseModel):
@@ -31,7 +37,6 @@ class ProductRead(BaseModel):
 
     id: UUID
     active: bool
-    product_id: str
     description: str
     image: str
     product_category_id: UUID
@@ -55,7 +60,6 @@ class ProductCreate(BaseModel):
         orm_mode = True
 
     active: bool
-    product_id: str
     description: str
     image: str
     product_category_id: str

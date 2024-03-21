@@ -1,19 +1,11 @@
 from __future__ import annotations
 
-from datetime import date
 from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
-from advanced_alchemy import NotFoundError
 
-from pydantic import BaseModel as _BaseModel, TypeAdapter
-# from pydantic import TypeAdapter
-from sqlalchemy import ForeignKey, select
-from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload,joinedload
+from pydantic import TypeAdapter
 
 from litestar import Litestar, get, put
-from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
-from litestar.contrib.sqlalchemy.plugins import AsyncSessionConfig, SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
-from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from litestar.controller import Controller
 from litestar.di import Provide
 from litestar.handlers.http_handlers.decorators import delete, patch, post
@@ -21,10 +13,11 @@ from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
 from db.models import models
-from schemas.product_schema import ProductCreate, ProductRead, ProductUpdate
-from db.models.models import Product
+from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductUpdate
+from db.models.models import Product, ProductIngredient
 
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
+from db.repositories.product_ingredient_repository import provide_product_ingredient_details_repo, provide_product_ingredients_repo, ProductIngredientRepository
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -120,3 +113,17 @@ class ProductController(Controller):
         await repository.session.commit()
 
 
+    @post(path="/{product_id:uuid}/product-ingredient", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+    async def create_product_ingredient(
+        self,
+        product_id: UUID,
+        product_ingredients_repo: ProductIngredientRepository,
+        data: ProductIngredientCreate,
+    ) -> ProductIngredientRead:
+        """Create a new product ingredient."""
+        obj = await product_ingredients_repo.add(
+            ProductIngredient(product_id=product_id,ingredient_id=data.ingredient_id),
+
+        )
+        await product_ingredients_repo.session.commit()
+        return ProductIngredientRead.model_validate(obj)

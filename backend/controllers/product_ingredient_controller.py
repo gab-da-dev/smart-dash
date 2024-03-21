@@ -13,11 +13,11 @@ from litestar.handlers.http_handlers.decorators import delete, patch, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from db.repositories.product_ingredient_repository import provide_product_ingredient_details_repo
+from db.repositories.product_ingredient_repository import provide_product_ingredient_details_repo, ProductIngredientRepository, provide_product_ingredients_repo
 from schemas.product_schema import ProductIngredientCreate, ProductIngredientRead, ProductIngredientUpdate
 from db.models.models import ProductIngredient
 
-from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
+from db.repositories.product_repository import provide_products_repo
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,14 +26,14 @@ if TYPE_CHECKING:
 
 class ProductIngredientController(Controller):
     path = "/product-ingredient"
-    dependencies:ClassVar[dict[str, Provide]] = {"repository": Provide(provide_products_repo)}
+    dependencies:ClassVar[dict[str, Provide]] = {"repository": Provide(provide_product_ingredients_repo)}
 
     tags: ClassVar[list[str]] = ["product_ingredient"]
 
     @post(path="/")
     async def create_product_ingredient(
         self,
-        repository: ProductRepository,
+        repository: ProductIngredientRepository,
         data: ProductIngredientCreate,
     ) -> ProductIngredientRead:
         """Create a new product ingredient."""
@@ -46,10 +46,10 @@ class ProductIngredientController(Controller):
 
         # we override the products_repo to use the version that joins the Books in
 
-    @get(path="/{product_ingredient_id:uuid}", dependencies={"product_ingredient_repo": Provide(provide_product_ingredient_details_repo)})
+    @get(path="/{product_ingredient_id:uuid}")
     async def get_product_ingredient(
         self,
-        product_ingredient_repo: ProductRepository,
+        repository: ProductIngredientRepository,
         product_ingredient_id: UUID = Parameter(
             title="Product ID",
             description="The product to retrieve.",
@@ -57,7 +57,7 @@ class ProductIngredientController(Controller):
     ) -> ProductIngredientRead:
         """Get an existing product."""
         
-        obj = await product_ingredient_repo.get(product_ingredient_id)
+        obj = await repository.get(product_ingredient_id)
         # obj = await products_repo.get_one_or_none(product_ingredient_id)
         return ProductIngredientRead.model_validate(obj)
         
@@ -66,7 +66,7 @@ class ProductIngredientController(Controller):
     @get("/all")
     async def list_all_product_ingredients(
         self,
-        repository: ProductRepository,
+        repository: ProductIngredientRepository,
         limit_offset: LimitOffset,
         )-> OffsetPagination[ProductIngredient]:
         """Get list of products."""
@@ -82,7 +82,7 @@ class ProductIngredientController(Controller):
     @put(path="/{product_ingredient_id:uuid}")
     async def update_product_ingredient(
         self,
-        repository: ProductRepository,
+        repository: ProductIngredientRepository,
         data: ProductIngredientUpdate,
         product_ingredient_id: UUID = Parameter(
             title="Product ID",
@@ -101,7 +101,7 @@ class ProductIngredientController(Controller):
     @delete(path="/{product_ingredient_id:uuid}")
     async def delete_product_ingredient(
         self,
-        repository: ProductRepository,
+        repository: ProductIngredientRepository,
         product_ingredient_id: UUID = Parameter(
             title="Product ID",
             description="The product to delete.",

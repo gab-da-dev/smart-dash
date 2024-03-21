@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, Text, Uuid
+from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, Text, UniqueConstraint, Uuid
 from sqlalchemy.orm import Load, Mapped, joinedload, load_only, mapped_column, noload, relationship, selectinload
 from uuid import UUID
 
@@ -21,7 +21,7 @@ class Product(UUIDAuditBase):
     prep_time: Mapped[str] = mapped_column(Text(), nullable=False)
     # size_pricing: Mapped[Author] = relationship(lazy="joined", innerjoin=True, viewonly=True)
     #relationship
-    product_ingredients: Mapped[list["Ingredient"]] = relationship(lazy="selectin")
+    product_ingredients: Mapped[list["ProductIngredient"]] = relationship(lazy="selectin")
     # order: Mapped[list["OrderProduct"]] = relationship(lazy="selectin")
 
 class ProductIngredient(UUIDAuditBase):
@@ -31,8 +31,11 @@ class ProductIngredient(UUIDAuditBase):
     product_id: Mapped[UUID] = mapped_column(Uuid(),ForeignKey("product.id"), nullable=True)
     ingredient_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("ingredient.id"), nullable=True)
 
-    # product: Mapped[Product] = relationship()
+    ingredient: Mapped["Ingredient"] = relationship(lazy="selectin")
 
+__table_args__ = (
+        UniqueConstraint('product_id', 'ingredient_id'),
+    )
 class Ingredient(UUIDAuditBase):
 
     __tablename__ = "ingredient"
