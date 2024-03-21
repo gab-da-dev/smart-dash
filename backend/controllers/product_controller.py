@@ -12,8 +12,7 @@ from litestar.handlers.http_handlers.decorators import delete, patch, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from db.models import models
-from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductUpdate
+from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadDetail, ProductUpdate
 from db.models.models import Product, ProductIngredient
 
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
@@ -30,21 +29,30 @@ class ProductController(Controller):
 
     tags: ClassVar[list[str]] = ["product"]
 
-    @post(path="/")
+    @post(path="/", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
     async def create_product(
         self,
         repository: ProductRepository,
+        product_ingredients_repo: ProductIngredientRepository,
         data: ProductCreate,
     ) -> ProductRead:
         """Create a new product."""
         obj = await repository.add(
-            Product(**data.model_dump(exclude_unset=True, exclude_none=True)),
+            Product(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['ingredients'])),
 
         )
         await repository.session.commit()
+         # Extract the product ID
+        product_id = obj.id
+
+        # Update ingredients with product ID
+        for ingredient in data.ingredients:
+            await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
+
+        
+        await product_ingredients_repo.session.commit()
         return ProductRead.model_validate(obj)
 
-        # we override the products_repo to use the version that joins the Books in
 
     @get(path="/{product_id:uuid}", dependencies={"products_repo": Provide(provide_product_details_repo)})
     async def get_product(
@@ -54,12 +62,12 @@ class ProductController(Controller):
             title="Product ID",
             description="The product to retrieve.",
         ),
-    ) -> ProductRead:
+    ) -> ProductReadDetail:
         """Get an existing product."""
         
         obj = await products_repo.get(product_id)
         # obj = await products_repo.get_one_or_none(product_id)
-        return ProductRead.model_validate(obj)
+        return ProductReadDetail.model_validate(obj)
         
     # TODO: check how to put in a not found exception
     
@@ -71,8 +79,8 @@ class ProductController(Controller):
         )-> OffsetPagination[Product]:
         """Get list of products."""
         results, total = await repository.list_and_count(limit_offset)
-        type_adapter = TypeAdapter(list[ProductRead])
-        return OffsetPagination[ProductRead](
+        type_adapter = TypeAdapter(list[ProductReadDetail])
+        return OffsetPagination[ProductReadDetail](
             items=type_adapter.validate_python(results),
             total=total,
             limit=limit_offset.limit,

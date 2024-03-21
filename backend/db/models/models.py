@@ -33,9 +33,9 @@ class ProductIngredient(UUIDAuditBase):
 
     ingredient: Mapped["Ingredient"] = relationship(lazy="selectin")
 
-__table_args__ = (
-        UniqueConstraint('product_id', 'ingredient_id'),
-    )
+# __table_args__ = (
+#         UniqueConstraint('product_id', 'ingredient_id'),
+#     )
 class Ingredient(UUIDAuditBase):
 
     __tablename__ = "ingredient"

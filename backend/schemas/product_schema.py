@@ -36,6 +36,21 @@ class ProductRead(BaseModel):
         orm_mode = True
 
     id: UUID
+    name: str
+    active: bool
+    description: str
+    image: str
+    product_category_id: UUID
+    price: float
+    prep_time: str
+
+
+class ProductReadDetail(BaseModel):
+    class Config:
+        orm_mode = True
+
+    id: UUID
+    name: str
     active: bool
     description: str
     image: str
@@ -59,10 +74,11 @@ class ProductCreate(BaseModel):
     class Config:
         orm_mode = True
 
+    name: str
     active: bool
     description: str
     image: str
     product_category_id: str
     price: float
     prep_time: str
-
+    ingredients: list[ProductIngredientCreate]
