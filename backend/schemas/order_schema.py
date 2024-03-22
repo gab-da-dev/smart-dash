@@ -28,6 +28,7 @@ class OrderProduct(BaseModel):
     class Config:
         orm_mode = True
     
+    # name: str
     product_id: UUID
     quantity: int
     price: float

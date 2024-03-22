@@ -49,9 +49,12 @@ class ProductController(Controller):
         for ingredient in data.ingredients:
             await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
 
-        
         await product_ingredients_repo.session.commit()
-        return ProductRead.model_validate(obj)
+        repository.auto_expunge = True
+        new_obj = await repository.get(product_id,auto_expunge=True)
+        print(new_obj.to_dict())
+        return ProductRead.model_validate(new_obj)
+        return ProductReadDetail.model_validate(obj)
 
 
     @get(path="/{product_id:uuid}", dependencies={"products_repo": Provide(provide_product_details_repo)})
@@ -79,8 +82,8 @@ class ProductController(Controller):
         )-> OffsetPagination[Product]:
         """Get list of products."""
         results, total = await repository.list_and_count(limit_offset)
-        type_adapter = TypeAdapter(list[ProductReadDetail])
-        return OffsetPagination[ProductReadDetail](
+        type_adapter = TypeAdapter(list[ProductRead])
+        return OffsetPagination[ProductRead](
             items=type_adapter.validate_python(results),
             total=total,
             limit=limit_offset.limit,
@@ -103,7 +106,7 @@ class ProductController(Controller):
         raw_obj.update({"id": product_id})
         obj = await repository.update(Product(**raw_obj))
         await repository.session.commit()
-        return ProductRead.from_orm(obj)
+        return ProductRead.model_validate(obj)
 
 
     @delete(path="/{product_id:uuid}")
@@ -135,3 +138,13 @@ class ProductController(Controller):
         )
         await product_ingredients_repo.session.commit()
         return ProductIngredientRead.model_validate(obj)
+    
+    @delete(path="/{product_id:uuid}/product-ingredient/{product_ingredient_id:uuid}", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+    async def delete_product_ingredient(
+        self,
+        product_ingredient_id: UUID,
+        product_ingredients_repo: ProductIngredientRepository,
+    ) -> None:
+        """Create a new product ingredient."""
+        await product_ingredients_repo.delete(product_ingredient_id)
+        product_ingredients_repo.session.commit()
