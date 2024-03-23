@@ -82,9 +82,7 @@ class User(UUIDAuditBase):
     phone_number: Mapped[str] = mapped_column(Text(), nullable=False)
     email: Mapped[str] = mapped_column(Text(), nullable=False)
     password: Mapped[str] = mapped_column(Text(), nullable=False)
-    delivery_limit: Mapped[str] = mapped_column(Text(), nullable=False)
 
-    # orders: Mapped[list["Order"]] = relationship(lazy="join")
 
 class Order(UUIDAuditBase):
     __tablename__ = "order"

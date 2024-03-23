@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from litestar import Litestar, get
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 from litestar.contrib.sqlalchemy.plugins import AsyncSessionConfig, SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
+from controllers.auth_controller import AuthController
 from controllers.ingredient_controller import IngredientController
 from controllers.product_ingredient_controller import ProductIngredientController
 from controllers.store_profile_controller import StoreProfileController
@@ -36,7 +37,7 @@ async def on_startup() -> None:
 
 app = Litestar(
     debug=True,
-    route_handlers=[ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController],
+    route_handlers=[ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController,AuthController],
     on_startup=[on_startup],
     plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
     dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},
