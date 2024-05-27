@@ -4,8 +4,7 @@ from datetime import date
 from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
 
-from pydantic import BaseModel as _BaseModel, TypeAdapter
-# from pydantic import TypeAdapter
+from pydantic import TypeAdapter
 from litestar import Litestar, get, put
 from litestar.controller import Controller
 from litestar.di import Provide

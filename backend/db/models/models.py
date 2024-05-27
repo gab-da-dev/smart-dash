@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy import Float, ForeignKey, Text, Uuid, select
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 
-from src.enums import OrderType, Rating
+from src.enums import DeliveryStatus, OrderType, Rating
 
 
 class Product(UUIDAuditBase):
@@ -41,7 +41,7 @@ class Ingredient(UUIDAuditBase):
     __tablename__ = "ingredient"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
-    price: Mapped[str] = mapped_column(Text(), nullable=False)
+    price: Mapped[float] = mapped_column(Float(), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     
     # product: Mapped[Product] = relationship()
@@ -89,13 +89,13 @@ class Order(UUIDAuditBase):
 
     address: Mapped[str] = mapped_column(Text(), nullable=True)
     collect_status: Mapped[bool] = mapped_column(Boolean(), nullable=True)
-    delivery_status: Mapped[str] = mapped_column(Text(), nullable=True)
-    delivery_cost: Mapped[str] = mapped_column(Text(), nullable=True)
-    distance: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_status: Mapped[DeliveryStatus] = mapped_column(Enum(DeliveryStatus), nullable=True)
+    delivery_cost: Mapped[float] = mapped_column(Float(), nullable=True)
+    distance: Mapped[float] = mapped_column(Float(), nullable=True)
     driver_latitude: Mapped[str] = mapped_column(Text(), nullable=True)
     driver_longitude: Mapped[str] = mapped_column(Text(), nullable=True)
-    delivery_latitude: Mapped[str] = mapped_column(Text(), nullable=True)
-    delivery_longitude: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_location_latitude: Mapped[str] = mapped_column(Text(), nullable=True)
+    delivery_location_longitude: Mapped[str] = mapped_column(Text(), nullable=True)
     order_type: Mapped[OrderType] = mapped_column(Enum(OrderType), nullable=True)
     food_rating: Mapped[Rating] = mapped_column(Enum(Rating), nullable=True)
     food_comment: Mapped[str] = mapped_column(Text(), nullable=True)

@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
 from advanced_alchemy import NotFoundError
 
-from pydantic import BaseModel as _BaseModel, TypeAdapter
-# from pydantic import TypeAdapter
+from pydantic import TypeAdapter
 
 from litestar import Litestar, get, put
 from litestar.controller import Controller

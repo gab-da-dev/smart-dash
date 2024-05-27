@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
 
-from pydantic import TypeAdapter
 
 from sqlalchemy import select
 

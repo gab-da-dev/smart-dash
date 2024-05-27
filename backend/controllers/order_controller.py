@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
 from advanced_alchemy import NotFoundError
 
-from pydantic import BaseModel as _BaseModel, TypeAdapter
+from pydantic import TypeAdapter
 # from pydantic import TypeAdapter
 
 from litestar import Litestar, get, put
@@ -71,7 +71,6 @@ class OrderController(Controller):
         """Get an existing order."""
         
         obj = await orders_repo.get(order_id)
-        # obj = await orders_repo.get_one_or_none(product_id)
         return OrderRead.model_validate(obj)
         
     # TODO: check how to put in a not found exception
@@ -126,3 +125,38 @@ class OrderController(Controller):
         await repository.session.commit()
 
 
+    @put(path="/{order_id:uuid}/status")
+    async def update_order_status(
+        self,
+        repository: OrderRepository,
+        data: OrderUpdate,
+        order_id: UUID = Parameter(
+            title="Order ID",
+            description="The order to update.",
+        ),
+    ) -> OrderRead:
+        """Update an order status."""
+
+        raw_obj = data.model_dump(exclude_unset=True, exclude_none=True)
+        raw_obj.update({"id": order_id})
+        obj = await repository.update(Order(**raw_obj))
+        await repository.session.commit()
+        return OrderRead.from_orm(obj)
+    
+    @put(path="/{order_id:uuid}/driver-status")
+    async def update_order_driver_status(
+        self,
+        repository: OrderRepository,
+        data: OrderUpdate,
+        order_id: UUID = Parameter(
+            title="Order ID",
+            description="The order to update.",
+        ),
+    ) -> OrderRead:
+        """Update an driver status."""
+
+        raw_obj = data.model_dump(exclude_unset=True, exclude_none=True)
+        raw_obj.update({"id": order_id})
+        obj = await repository.update(Order(**raw_obj))
+        await repository.session.commit()
+        return OrderRead.from_orm(obj)

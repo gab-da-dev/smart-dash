@@ -13,17 +13,17 @@ class BaseModel(_BaseModel):
 class IngredientCreate(BaseModel):
     name: str
     active: bool
-    price: str
+    price: float
 
 class IngredientRead(BaseModel):
     id: UUID
     name: str
     active: bool
-    price: str
+    price: float
 
 
 class IngredientUpdate(BaseModel):
     name: str
     active: bool
-    price: str
+    price: float
   
