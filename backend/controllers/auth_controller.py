@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from http.client import HTTPException
+from typing import TYPE_CHECKING, Any, ClassVar
 from uuid import UUID
 
 
+import httpx
+import jwt
 from sqlalchemy import select
 
 from sqlalchemy.exc import IntegrityError, NoResultFound
-from litestar.exceptions import ClientException, NotFoundException
+from litestar.exceptions import NotAuthorizedException, NotFoundException
 from litestar import Litestar, get, put
 from litestar.controller import Controller
 from litestar.di import Provide
@@ -34,20 +37,23 @@ class AuthController(Controller):
 
     tags: ClassVar[list[str]] = ["auth"]
 
-    @post(path="/login")
-    async def login(
-        self,
-        data: Login,
-        repository: AuthRepository
-    ) -> User:
-        """Create a new product."""
-        query = select(User).where(User.email == data.email)
+    @post("/login")
+    async def login(self, repository: AuthRepository, data: Login)-> Any:
 
+        SECRET_KEY = "your_very_secret_key"
+        ALGORITHM = "HS256" 
+        query = select(User).where(User.email==data.email)
         result = await repository.session.execute(query)
-        # print(LoginRead(**result.scalar_one().to_dict()))
-        try:
-            return result.scalar_one().to_dict(exclude=['password'])
 
+        try:
+            user = result.scalar_one()
+            if not user or user.password != "password":  # Replace with actual password validation
+                raise NotAuthorizedException()
         except NoResultFound as e:
-            raise NotFoundException(detail=f"Credentials invalid") from e
+            raise NotFoundException(detail=f"not found") from e
+        
+        # Generate JWT token
+        
+        access_token = jwt.encode({"email": user.email}, SECRET_KEY, algorithm=ALGORITHM)
+        return {"access_token": access_token}
 

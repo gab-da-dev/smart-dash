@@ -50,10 +50,10 @@ class ProductController(Controller):
             await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
 
         await product_ingredients_repo.session.commit()
-        repository.auto_expunge = True
-        new_obj = await repository.get(product_id,auto_expunge=True)
-        print(new_obj.to_dict())
-        return ProductRead.model_validate(new_obj)
+        # repository.auto_expunge = True
+        # new_obj = await repository.get(product_id,auto_expunge=True)
+        # print(new_obj.to_dict())
+        return ProductRead.model_validate(obj)
         return ProductReadDetail.model_validate(obj)
 
 

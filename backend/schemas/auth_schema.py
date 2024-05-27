@@ -25,3 +25,13 @@ class LoginRead(BaseModel):
     last_name: str
     phone_number: str
     email: str
+
+class JWTUserPayload(BaseModel):
+    id: UUID
+
+    class Config:
+        orm_mode = True
+
+    @classmethod
+    def from_user(cls, user):
+        return cls(id=str(user.id), email=user.email)
