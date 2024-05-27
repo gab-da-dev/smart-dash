@@ -26,6 +26,13 @@ class LoginRead(BaseModel):
     phone_number: str
     email: str
 
+class RegisterRequest(BaseModel):
+    first_name: str
+    last_name: str
+    phone_number: str
+    email: str
+    password: str
+
 class JWTUserPayload(BaseModel):
     id: UUID
 

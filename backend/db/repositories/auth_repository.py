@@ -11,6 +11,7 @@ from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from litestar.handlers.http_handlers.decorators import delete, patch, post
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
+from passlib.context import CryptContext
 
 from db.models.models import User
 
