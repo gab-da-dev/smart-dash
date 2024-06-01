@@ -2,7 +2,6 @@ from datetime import date
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-import jwt
 from sqlalchemy import Float, ForeignKey, Text, Uuid, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from litestar.exceptions import NotAuthorizedException

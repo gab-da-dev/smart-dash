@@ -16,7 +16,7 @@ from schemas.product_schema import ProductCreate, ProductIngredientCreate, Produ
 from db.models.models import Product, ProductIngredient
 
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
-from db.repositories.product_ingredient_repository import provide_product_ingredient_details_repo, provide_product_ingredients_repo, ProductIngredientRepository
+from db.repositories.product_ingredient_repository import provide_product_ingredients_repo, ProductIngredientRepository
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -50,11 +50,7 @@ class ProductController(Controller):
             await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
 
         await product_ingredients_repo.session.commit()
-        # repository.auto_expunge = True
-        # new_obj = await repository.get(product_id,auto_expunge=True)
-        # print(new_obj.to_dict())
         return ProductRead.model_validate(obj)
-        return ProductReadDetail.model_validate(obj)
 
 
     @get(path="/{product_id:uuid}", dependencies={"products_repo": Provide(provide_product_details_repo)})

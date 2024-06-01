@@ -5,8 +5,6 @@ from http.client import HTTPException
 from typing import TYPE_CHECKING, Any, ClassVar
 from uuid import UUID
 
-
-import httpx
 import jwt
 from sqlalchemy import select
 
@@ -67,7 +65,7 @@ class AuthController(Controller):
         return {"access_token": access_token, "token_type": "bearer"}
     
 
-    @post("/register")
+    @post("/register", exclude_from_auth=True)
     async def register(self, repository: AuthRepository, data: RegisterRequest)-> Any:
         
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
