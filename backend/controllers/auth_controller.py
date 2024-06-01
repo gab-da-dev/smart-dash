@@ -42,9 +42,9 @@ class AuthController(Controller):
 
         SECRET_KEY = "your_very_secret_key"
         ALGORITHM = "HS256" 
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
         def verify_password(plain_password: str, hashed_password: str) -> bool:
-            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
             return pwd_context.verify(plain_password, hashed_password)
         
         query = select(User).where(User.email==data.email)
@@ -68,9 +68,9 @@ class AuthController(Controller):
     async def register(self, repository: AuthRepository, data: RegisterRequest)-> Any:
         SECRET_KEY = "your_very_secret_key"
         ALGORITHM = "HS256"
-
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        
         def hash_password(password: str) -> str:
-            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
             return pwd_context.hash(password)
 
         hashed_password = hash_password(data.password)
@@ -78,9 +78,9 @@ class AuthController(Controller):
         
         await repository.add(
             User(password=hashed_password, **data.model_dump(exclude_unset=True, exclude_none=True, exclude=['password'])),
-        await repository.session.commit()
-        )
         
+        )
+        await repository.session.commit()
         # Optionally, generate JWT token
         payload = {"email": new_user.email, "user_id": new_user.id}
         access_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
