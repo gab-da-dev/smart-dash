@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from http.client import HTTPException
 from typing import TYPE_CHECKING, Any, ClassVar
 from uuid import UUID
@@ -11,7 +12,7 @@ from sqlalchemy import select
 
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from litestar.exceptions import NotAuthorizedException, NotFoundException
-from litestar import Litestar, get, put
+from litestar import Litestar, Request, get, put
 from litestar.controller import Controller
 from litestar.di import Provide
 from litestar.handlers.http_handlers.decorators import delete, patch, post
@@ -29,15 +30,17 @@ from passlib.context import CryptContext
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
-
+SECRET_KEY = "your_very_secret_key"
+ALGORITHM = "HS256"
 
 class AuthController(Controller):
     path = "/auth"
     dependencies:ClassVar[dict[str, Provide]] = {"repository": Provide(provide_auth_repo)}
 
     tags: ClassVar[list[str]] = ["auth"]
-
-    @post("/login")
+    
+    
+    @post("/login", exclude_from_auth=True)
     async def login(self, repository: AuthRepository, data: Login)-> Any:
 
         SECRET_KEY = "your_very_secret_key"
@@ -61,13 +64,12 @@ class AuthController(Controller):
         # Generate JWT token
         
         access_token = jwt.encode({"email": user.email}, SECRET_KEY, algorithm=ALGORITHM)
-        return {"access_token": access_token}
+        return {"access_token": access_token, "token_type": "bearer"}
     
 
     @post("/register")
     async def register(self, repository: AuthRepository, data: RegisterRequest)-> Any:
-        SECRET_KEY = "your_very_secret_key"
-        ALGORITHM = "HS256"
+        
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         
         def hash_password(password: str) -> str:
@@ -87,4 +89,26 @@ class AuthController(Controller):
 
         return {"access_token": access_token}
         
+    @get('/protected')
+    async def protected_route(request: Request)->Any:
+        user = await get_current_user(request)
+        return {"message": f"Hello {user['sub']}"}
+
+def decode_access_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload if 'exp' in payload and payload['exp'] >= datetime.utcnow().timestamp() else None
+    except jwt.PyJWTError:
+        return None
+
+async def get_current_user(request: Request):
+    token = request.headers.get('Authorization')
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    token = token.split(" ")[1]
+    payload = decode_access_token(token)
+    if payload is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return payload
+
 

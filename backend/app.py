@@ -2,10 +2,11 @@ from datetime import date
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+import jwt
 from sqlalchemy import Float, ForeignKey, Text, Uuid, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from litestar import Litestar, get
+from litestar.exceptions import NotAuthorizedException
+from litestar import Litestar, Request, get
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 from litestar.contrib.sqlalchemy.plugins import AsyncSessionConfig, SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
 from controllers.auth_controller import AuthController
@@ -17,7 +18,15 @@ from db.repositories.product_repository import provide_limit_offset_pagination
 from litestar.di import Provide
 from controllers.product_controller import ProductController
 from controllers.order_controller import OrderController
+from litestar.openapi import OpenAPIConfig
+from litestar.openapi.spec import Components, SecurityScheme, Tag
+from litestar.middleware import (
+    AbstractAuthenticationMiddleware,
+    AuthenticationResult,
+)
+from litestar.middleware.base import DefineMiddleware
 
+from security.authentication_middleware import JWTAuthenticationMiddleware
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
     
@@ -34,11 +43,29 @@ async def on_startup() -> None:
     async with sqlalchemy_config.get_engine().begin() as conn:
         await conn.run_sync(UUIDBase.metadata.create_all)
 
+SECRET_KEY = 'your_secret_key'
+ALGORITHM = 'HS256'
 
+
+auth_mw = DefineMiddleware(JWTAuthenticationMiddleware, exclude="schema")
 app = Litestar(
+    middleware=[auth_mw],
     debug=True,
     route_handlers=[ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController,AuthController],
     on_startup=[on_startup],
     plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
     dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},
+    openapi_config=OpenAPIConfig(
+        title="awe",
+        version="1.0.0",
+        security=[{"BearerToken": []}],
+        components=Components(
+            security_schemes={
+                "BearerToken": SecurityScheme(
+                    type="http",
+                    scheme="bearer",
+                )
+            },
+        ),
+    )
 )
