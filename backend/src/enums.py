@@ -21,3 +21,15 @@ class Rating(int, Enum):
     THREE_STARS = 3
     FOUR_STARS = 4
     FIVE_STARS = 5
+
+class OrderStatus(str, Enum):
+    ACCEPTED = "accepted"
+    IN_PROGRESS = "collect"
+    COMPLETE = "complete"
+
+
+class DeliveryStatus(str, Enum):
+    ON_THE_WAY = "accepted"
+    IN_PROGRESS = "collect"
+    ARRIVED = "complete"
+    dELIVERED = "complete"

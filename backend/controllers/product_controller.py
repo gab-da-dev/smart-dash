@@ -1,30 +1,22 @@
 from __future__ import annotations
 
-from datetime import date
 from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
-from advanced_alchemy import NotFoundError
 
-from pydantic import BaseModel as _BaseModel, TypeAdapter
-# from pydantic import TypeAdapter
-from sqlalchemy import ForeignKey, select
-from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload,joinedload
+from pydantic import TypeAdapter
 
 from litestar import Litestar, get, put
-from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
-from litestar.contrib.sqlalchemy.plugins import AsyncSessionConfig, SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
-from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from litestar.controller import Controller
 from litestar.di import Provide
 from litestar.handlers.http_handlers.decorators import delete, patch, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from db.models import models
-from schemas.product_schema import ProductCreate, ProductRead, ProductUpdate
-from db.models.models import Product
+from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadDetail, ProductUpdate
+from db.models.models import Product, ProductIngredient
 
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
+from db.repositories.product_ingredient_repository import provide_product_ingredients_repo, ProductIngredientRepository
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,21 +29,29 @@ class ProductController(Controller):
 
     tags: ClassVar[list[str]] = ["product"]
 
-    @post(path="/")
+    @post(path="/", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
     async def create_product(
         self,
         repository: ProductRepository,
+        product_ingredients_repo: ProductIngredientRepository,
         data: ProductCreate,
     ) -> ProductRead:
         """Create a new product."""
         obj = await repository.add(
-            Product(**data.model_dump(exclude_unset=True, exclude_none=True)),
+            Product(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['ingredients'])),
 
         )
         await repository.session.commit()
+         # Extract the product ID
+        product_id = obj.id
+
+        # Update ingredients with product ID
+        for ingredient in data.ingredients:
+            await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
+
+        await product_ingredients_repo.session.commit()
         return ProductRead.model_validate(obj)
 
-        # we override the products_repo to use the version that joins the Books in
 
     @get(path="/{product_id:uuid}", dependencies={"products_repo": Provide(provide_product_details_repo)})
     async def get_product(
@@ -61,12 +61,12 @@ class ProductController(Controller):
             title="Product ID",
             description="The product to retrieve.",
         ),
-    ) -> ProductRead:
+    ) -> ProductReadDetail:
         """Get an existing product."""
         
         obj = await products_repo.get(product_id)
         # obj = await products_repo.get_one_or_none(product_id)
-        return ProductRead.model_validate(obj)
+        return ProductReadDetail.model_validate(obj)
         
     # TODO: check how to put in a not found exception
     
@@ -102,7 +102,7 @@ class ProductController(Controller):
         raw_obj.update({"id": product_id})
         obj = await repository.update(Product(**raw_obj))
         await repository.session.commit()
-        return ProductRead.from_orm(obj)
+        return ProductRead.model_validate(obj)
 
 
     @delete(path="/{product_id:uuid}")
@@ -120,3 +120,27 @@ class ProductController(Controller):
         await repository.session.commit()
 
 
+    @post(path="/{product_id:uuid}/product-ingredient", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+    async def create_product_ingredient(
+        self,
+        product_id: UUID,
+        product_ingredients_repo: ProductIngredientRepository,
+        data: ProductIngredientCreate,
+    ) -> ProductIngredientRead:
+        """Create a new product ingredient."""
+        obj = await product_ingredients_repo.add(
+            ProductIngredient(product_id=product_id,ingredient_id=data.ingredient_id),
+
+        )
+        await product_ingredients_repo.session.commit()
+        return ProductIngredientRead.model_validate(obj)
+    
+    @delete(path="/{product_id:uuid}/product-ingredient/{product_ingredient_id:uuid}", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+    async def delete_product_ingredient(
+        self,
+        product_ingredient_id: UUID,
+        product_ingredients_repo: ProductIngredientRepository,
+    ) -> None:
+        """Create a new product ingredient."""
+        await product_ingredients_repo.delete(product_ingredient_id)
+        product_ingredients_repo.session.commit()

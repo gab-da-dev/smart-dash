@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
 from advanced_alchemy import NotFoundError
 
-from pydantic import BaseModel as _BaseModel, TypeAdapter
+from pydantic import TypeAdapter
 # from pydantic import TypeAdapter
 
 from litestar import Litestar, get, put
@@ -15,12 +15,11 @@ from litestar.handlers.http_handlers.decorators import delete, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from db.models import models
-from schemas.order_schema import OrderCreate, OrderRead, OrderUpdate
-from db.models.models import Order
+from schemas.order_schema import OrderCreate, OrderProductCreate, OrderRead, OrderUpdate
+from db.models.models import Order, OrderProduct
 
 from db.repositories.order_repository import OrderRepository, provide_order_details_repo, provide_order_repo
-
+from db.repositories.order_product_repository import OrderProductRepository, provide_order_product_details_repo, provide_order_product_repo
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,22 +31,34 @@ class OrderController(Controller):
 
     tags: ClassVar[list[str]] = ["order"]
 
-    @post(path="/")
+    @post(path="/", dependencies={"order_product_repo": Provide(provide_order_product_repo)})
     async def create_order(
         self,
         repository: OrderRepository,
+        order_product_repo: OrderProductRepository,
         data: OrderCreate,
     ) -> OrderRead:
         """Create a new Order."""
         obj = await repository.add(
-            Order(**data.model_dump(exclude_unset=True, exclude_none=True)),
+            Order(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['order'])),
 
         )
         await repository.session.commit()
+
+        order_product = data.order
+        order_array = []
+        
+        for order in order_product:
+            order_product_obj = order.model_dump()
+            order_product_obj['order_id'] = obj.id
+            order_array.append(order_product_obj)
+            await order_product_repo.add(OrderProduct(order_id=order_product_obj['order_id'],note=order_product_obj['note'],product_id=order_product_obj['product_id'],quantity=order_product_obj['quantity'],price=order_product_obj['price']))
+        
+        await order_product_repo.session.commit()
+        
         return OrderRead.model_validate(obj)
 
-        # we override the orders_repo to use the version that joins the Books in
-
+       
     @get(path="/{order_id:uuid}", dependencies={"orders_repo": Provide(provide_order_details_repo)})
     async def get_order(
         self,
@@ -60,7 +71,6 @@ class OrderController(Controller):
         """Get an existing order."""
         
         obj = await orders_repo.get(order_id)
-        # obj = await orders_repo.get_one_or_none(product_id)
         return OrderRead.model_validate(obj)
         
     # TODO: check how to put in a not found exception
@@ -115,3 +125,38 @@ class OrderController(Controller):
         await repository.session.commit()
 
 
+    @put(path="/{order_id:uuid}/status")
+    async def update_order_status(
+        self,
+        repository: OrderRepository,
+        data: OrderUpdate,
+        order_id: UUID = Parameter(
+            title="Order ID",
+            description="The order to update.",
+        ),
+    ) -> OrderRead:
+        """Update an order status."""
+
+        raw_obj = data.model_dump(exclude_unset=True, exclude_none=True)
+        raw_obj.update({"id": order_id})
+        obj = await repository.update(Order(**raw_obj))
+        await repository.session.commit()
+        return OrderRead.from_orm(obj)
+    
+    @put(path="/{order_id:uuid}/driver-status")
+    async def update_order_driver_status(
+        self,
+        repository: OrderRepository,
+        data: OrderUpdate,
+        order_id: UUID = Parameter(
+            title="Order ID",
+            description="The order to update.",
+        ),
+    ) -> OrderRead:
+        """Update an driver status."""
+
+        raw_obj = data.model_dump(exclude_unset=True, exclude_none=True)
+        raw_obj.update({"id": order_id})
+        obj = await repository.update(Order(**raw_obj))
+        await repository.session.commit()
+        return OrderRead.from_orm(obj)
