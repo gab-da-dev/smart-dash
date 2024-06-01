@@ -15,7 +15,7 @@ from litestar.middleware import (
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine
 
-API_KEY_HEADER = "X-API-KEY"
+API_KEY_HEADER = "authorization"
 
 
 class JWTAuthenticationMiddleware(AbstractAuthenticationMiddleware):
@@ -30,10 +30,10 @@ class JWTAuthenticationMiddleware(AbstractAuthenticationMiddleware):
         # decode the token, the result is a ``Token`` model instance
         token = decode_jwt_token(encoded_token=auth_header)
 
-        engine = cast("AsyncEngine", connection.app.state.postgres_connection)
+        engine = cast("AsyncEngine", connection.app.state.engine)
         async with AsyncSession(engine) as async_session:
             async with async_session.begin():
-                user = await async_session.execute(select(User).where(User.id == token.sub))
+                user = await async_session.execute(select(User).where(User.email == token.sub))
         if not user:
             raise NotAuthorizedException()
         return AuthenticationResult(user=user, auth=token)

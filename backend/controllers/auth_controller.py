@@ -20,7 +20,7 @@ from litestar.repository.filters import LimitOffset
 from schemas.auth_schema import Login, LoginRead, RegisterRequest
 from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadDetail, ProductUpdate
 from db.models.models import Product, ProductIngredient, User
-
+from security.jwt import Token, encode_jwt_token
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
 from db.repositories.product_ingredient_repository import provide_product_ingredient_details_repo, ProductIngredientRepository
 from db.repositories.auth_repository import provide_auth_details_repo, provide_auth_repo, AuthRepository
@@ -64,6 +64,12 @@ class AuthController(Controller):
         access_token = jwt.encode({"email": user.email}, SECRET_KEY, algorithm=ALGORITHM)
         return {"access_token": access_token, "token_type": "bearer"}
     
+    @get("/")
+    def my_route_handler(self, request: Request[User, Token, State]) -> None:
+        user = request.user  # correctly typed as User
+        auth = request.auth  # correctly typed as Token
+        assert isinstance(user, User)
+        assert isinstance(auth, Token)
 
     @post("/register", exclude_from_auth=True)
     async def register(self, repository: AuthRepository, data: RegisterRequest)-> Any:
@@ -82,8 +88,7 @@ class AuthController(Controller):
         )
         await repository.session.commit()
         # Optionally, generate JWT token
-        payload = {"email": new_user.email, "user_id": new_user.id}
-        access_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = encode_jwt_token(new_user.email)
 
         return {"access_token": access_token}
         

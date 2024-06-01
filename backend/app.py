@@ -1,5 +1,5 @@
 from datetime import date
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from uuid import UUID
 
 from sqlalchemy import Float, ForeignKey, Text, Uuid, select
@@ -24,10 +24,11 @@ from litestar.middleware import (
     AuthenticationResult,
 )
 from litestar.middleware.base import DefineMiddleware
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 
 from security.authentication_middleware import JWTAuthenticationMiddleware
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+    from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
     
 
 session_config = AsyncSessionConfig(expire_on_commit=False)
@@ -37,10 +38,21 @@ sqlalchemy_config = SQLAlchemyAsyncConfig(
 sqlalchemy_plugin = SQLAlchemyInitPlugin(config=sqlalchemy_config)
 
 
-async def on_startup() -> None:
+async def init_db() -> None:
     """Initializes the database."""
     async with sqlalchemy_config.get_engine().begin() as conn:
+        conn.engine
         await conn.run_sync(UUIDBase.metadata.create_all)
+
+
+def get_db_connection(app: Litestar) -> "AsyncEngine":
+    """Returns the db engine.
+
+    If it doesn't exist, creates it and saves it in on the application state object
+    """
+    if not getattr(app.state, "engine", None):
+        app.state.engine = create_async_engine("postgresql+asyncpg://developer:user@localhost:5600/smart_dash")
+    return cast("AsyncEngine", app.state.engine)
 
 SECRET_KEY = 'your_secret_key'
 ALGORITHM = 'HS256'
@@ -51,7 +63,7 @@ app = Litestar(
     middleware=[auth_mw],
     debug=True,
     route_handlers=[ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController,AuthController],
-    on_startup=[on_startup],
+    on_startup=[init_db, get_db_connection],
     plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
     dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},
     openapi_config=OpenAPIConfig(
