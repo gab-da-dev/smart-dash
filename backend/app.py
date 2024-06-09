@@ -25,6 +25,7 @@ from litestar.middleware import (
 )
 from litestar.middleware.base import DefineMiddleware
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from litestar.config.cors import CORSConfig
 
 from security.authentication_middleware import JWTAuthenticationMiddleware
 if TYPE_CHECKING:
@@ -60,6 +61,7 @@ ALGORITHM = 'HS256'
 
 auth_mw = DefineMiddleware(JWTAuthenticationMiddleware, exclude="schema")
 app = Litestar(
+    cors_config=CORSConfig(allow_origins=["*"]),
     middleware=[auth_mw],
     debug=True,
     route_handlers=[ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController,AuthController],

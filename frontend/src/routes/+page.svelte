@@ -1,10 +1,26 @@
 <script>
-  import Cart from "$lib/components/UI/Cart.svelte";
-  import Header from "$lib/components/UI/Header.svelte";
-  import MenuItem from "$lib/components/UI/MenuItem.svelte";
-  import Modal from "$lib/components/UI/Modal.svelte";
-  import MenuCategory from "$lib/components/UI/MenuCategory.svelte";
+import Cart from "$lib/components/UI/Cart.svelte";
+import Header from "$lib/components/UI/Header.svelte";
+import MenuItem from "$lib/components/UI/MenuItem.svelte";
+import Modal from "$lib/components/UI/Modal.svelte";
+import MenuCategory from "$lib/components/UI/MenuCategory.svelte";
   
+import { createEventDispatcher } from 'svelte';
+
+let modal_show = false;
+
+const dispatch = createEventDispatcher();
+
+function view_product() {
+    modal_show = true;
+}
+
+import { getRequest } from '$lib/services/http_service';
+
+getRequest('product-category/all')
+  .then(data => {
+    console.log(data);
+  });
 </script>
 
 <svelte:head>
@@ -43,16 +59,22 @@
                     <div class="row no-gutters">
                         <div class="col-md-10 offset-md-1" role="tablist">
                             <!-- Menu Category / Burgers -->
-                                <MenuCategory title={'test'} category_id={'test'} products={'test'}></MenuCategory>
+                                <MenuCategory on:viewProduct={() => {
+                                    modal_show = true;
+                                }} title={'test'} category_id={'test'} products={'test'}></MenuCategory>
 
                             <!-- Menu Category / Pasta -->
                             <div id="Pasta" class="menu-category">
-                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuPastaContent" data-toggle="collapse" aria-expanded="false">
+                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuPastaContent" data-toggle="collapse" aria-expanded="true">
                                     <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/menu-title-pasta.jpg" alt=""></div>
                                     <h2 class="title">Pasta</h2>
                                 </div>
                                 <div id="menuPastaContent" class="menu-category-content collapse">
-                                    <MenuItem></MenuItem>
+                                    <MenuItem
+                                    on:viewProduct={() => {
+                                        modal_show = true;
+                                    }}
+                                    ></MenuItem>
                                 </div>
                             </div>
                             <!-- Menu Category / Pizza -->
@@ -131,9 +153,18 @@
         <div id="body-overlay"></div>
     
     </div>
-    
-    <Modal></Modal>
-    
+    {#if modal_show}
+        <Modal 
+            on:closeModal={() => {
+                modal_show = !modal_show;
+            }}
+            on:viewProduct={() => {
+                modal_show = true;
+                alert('test')
+            }}
+            >
+            </Modal>
+    {/if}
     <!-- Cookies Bar -->
     <div id="cookies-bar" class="body-bar cookies-bar">
         <div class="body-bar-container container">

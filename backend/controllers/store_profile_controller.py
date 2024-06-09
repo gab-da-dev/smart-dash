@@ -64,7 +64,7 @@ class StoreProfileController(Controller):
         
     # TODO: check how to put in a not found exception
     
-    @get("/all")
+    @get("/all", exclude_from_auth=True)
     async def list_all_store_profile(
         self,
         repository: StoreProfileRepository,

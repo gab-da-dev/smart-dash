@@ -1,11 +1,26 @@
+<script>
+
+import { createEventDispatcher } from 'svelte';
+
+// export let modalTitle: string = '';
+// export let showCloseButton: boolean = true;
+
+const dispatch = createEventDispatcher();
+
+function handleClose() {
+    dispatch('closeModal');
+}
+
+</script>
+
 <!-- Modal / Product -->
-<div class="modal fade product-modal" id="product-modal" role="dialog">
+<div class="modal fade product-modal show" id="product-modal" role="dialog" style="display: block;">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header modal-header-lg dark bg-dark">
                 <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/modal-add.jpg" alt=""></div>
                 <h4 class="modal-title">Specify your dish</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="ti ti-close"></i></button>
+                <button type="button" on:click={handleClose} class="close" data-dismiss="modal" aria-label="Close"><i class="ti ti-close"></i></button>
             </div>
             <div class="modal-product-details">
                 <div class="row align-items-center">
