@@ -7,7 +7,7 @@
                 <!-- Logo -->
                 <div class="module module-logo dark">
                     <a href="index.html">
-                        <img src=http://localhost:5177/img/shesha-logos_white.png alt="" width="150">
+                        <img src=http://localhost:5173/img/shesha-logos_white.png alt="" width="150">
                     </a>
                 </div>
             </div>
@@ -81,7 +81,7 @@
 
     <div class="module module-logo">
         <a href="index.html">
-            <img src='http://localhost:5177/img/logo-horizontal-dark.svg' alt="">
+            <img src='http://localhost:5173/img/logo-horizontal-dark.svg' alt="">
         </a>
     </div>
 

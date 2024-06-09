@@ -1,19 +1,21 @@
 <script>
   import Cart from "$lib/components/UI/Cart.svelte";
-import Header from "$lib/components/UI/Header.svelte";
+  import Header from "$lib/components/UI/Header.svelte";
   import MenuItem from "$lib/components/UI/MenuItem.svelte";
   import Modal from "$lib/components/UI/Modal.svelte";
+  import MenuCategory from "$lib/components/UI/MenuCategory.svelte";
+  
 </script>
 
 <svelte:head>
-    <link rel="stylesheet" type="text/css" href=http://localhost:5177/core.css/>
+    <link rel="stylesheet" type="text/css" href="http://localhost:5173/css/core.css"/>
     <!-- CSS Theme -->
-    <link id="theme" rel="stylesheet" href="http://localhost:5177/css/theme-beige.css" />
+    <link id="theme" rel="stylesheet" href="http://localhost:5173/css/theme-beige.css" />
 </svelte:head>
 
 
     <!-- Body Wrapper -->
-    <div id="body-wrapper" class="animsition">
+    <div id="body-wrapper" class="animsition-">
     
         
         <Header></Header>
@@ -28,7 +30,7 @@ import Header from "$lib/components/UI/Header.svelte";
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-8 offset-lg-4">
-                            <h1 class="mb-0">Menu List</h1>
+                            <h1 class="mb-0">Buzz Kota's</h1>
                             <h4 class="text-muted mb-0">Some informations about our restaurant</h4>
                         </div>
                     </div>
@@ -41,18 +43,8 @@ import Header from "$lib/components/UI/Header.svelte";
                     <div class="row no-gutters">
                         <div class="col-md-10 offset-md-1" role="tablist">
                             <!-- Menu Category / Burgers -->
-                            <div id="Burgers" class="menu-category">
-                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuBurgersContent" data-toggle="collapse" aria-expanded="true">
-                                    <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/menu-title-burgers.jpg" alt=""></div>
-                                    <h2 class="title">Burgers</h2>
-                                </div>
-                                <div id="menuBurgersContent" class="menu-category-content collapse show">
-                                    <MenuItem></MenuItem>
-                                    <MenuItem></MenuItem>
-                                    
-                                    
-                                </div>
-                            </div>
+                                <MenuCategory title={'test'} category_id={'test'} products={'test'}></MenuCategory>
+
                             <!-- Menu Category / Pasta -->
                             <div id="Pasta" class="menu-category">
                                 <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuPastaContent" data-toggle="collapse" aria-expanded="false">
@@ -61,8 +53,6 @@ import Header from "$lib/components/UI/Header.svelte";
                                 </div>
                                 <div id="menuPastaContent" class="menu-category-content collapse">
                                     <MenuItem></MenuItem>
-                                    
-                                    
                                 </div>
                             </div>
                             <!-- Menu Category / Pizza -->
@@ -72,10 +62,7 @@ import Header from "$lib/components/UI/Header.svelte";
                                     <h2 class="title">Pizza</h2>
                                 </div>
                                 <div id="menuPizzaContent" class="menu-category-content collapse">
-                                    
                                     <MenuItem></MenuItem>
-                                    
-                                    
                                 </div>
                             </div>
                             <!-- Menu Category / Sushi -->
@@ -86,8 +73,6 @@ import Header from "$lib/components/UI/Header.svelte";
                                 </div>
                                 <div id="menuSushiContent" class="menu-category-content collapse">
                                     <MenuItem></MenuItem>
-                                    
-                                    
                                 </div>
                             </div>
                             <!-- Menu Category / Desserts -->

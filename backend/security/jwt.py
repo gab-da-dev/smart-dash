@@ -7,6 +7,7 @@ from pydantic import UUID4, BaseModel
 # from app.config import settings
 from litestar.exceptions import NotAuthorizedException
 
+
 DEFAULT_TIME_DELTA = timedelta(days=1)
 ALGORITHM = "HS256"
 
@@ -18,6 +19,13 @@ class Token(BaseModel):
     iat: datetime
     sub: str
 
+def decode_access_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload if 'exp' in payload and payload['exp'] >= datetime.utcnow().timestamp() else None
+    except jwt.PyJWTError:
+        return None
+    
 
 def decode_jwt_token(encoded_token: str) -> Token:
     """Helper function that decodes a jwt token and returns the value stored under the ``sub`` key

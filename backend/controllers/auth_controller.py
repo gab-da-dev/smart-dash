@@ -3,30 +3,23 @@ from __future__ import annotations
 from datetime import datetime
 from http.client import HTTPException
 from typing import TYPE_CHECKING, Any, ClassVar
-from uuid import UUID
 
 import jwt
 from sqlalchemy import select
 
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from litestar.exceptions import NotAuthorizedException, NotFoundException
-from litestar import Litestar, Request, get, put
+from litestar import Request, get
 from litestar.controller import Controller
 from litestar.di import Provide
-from litestar.handlers.http_handlers.decorators import delete, patch, post
-from litestar.pagination import OffsetPagination
-from litestar.params import Parameter
-from litestar.repository.filters import LimitOffset
-from schemas.auth_schema import Login, LoginRead, RegisterRequest
-from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadDetail, ProductUpdate
-from db.models.models import Product, ProductIngredient, User
+from litestar.handlers.http_handlers.decorators import post
+from schemas.auth_schema import Login, RegisterRequest
+from db.models.models import User
 from security.jwt import Token, encode_jwt_token
-from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
-from db.repositories.product_ingredient_repository import provide_product_ingredient_details_repo, ProductIngredientRepository
-from db.repositories.auth_repository import provide_auth_details_repo, provide_auth_repo, AuthRepository
+from db.repositories.auth_repository import provide_auth_repo, AuthRepository
 from passlib.context import CryptContext
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+    pass
 
 SECRET_KEY = "your_very_secret_key"
 ALGORITHM = "HS256"
@@ -57,11 +50,11 @@ class AuthController(Controller):
             if not user or verify_password(data.password, user.password):  # Replace with actual password validation
                 raise NotAuthorizedException()
         except NoResultFound as e:
-            raise NotFoundException(detail=f"not found") from e
+            raise NotFoundException(detail="not found") from e
         
         # Generate JWT token
-        
-        access_token = jwt.encode({"email": user.email}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = encode_jwt_token(email=user.email)
+        # access_token = jwt.encode({"email": user.email}, SECRET_KEY, algorithm=ALGORITHM)
         return {"access_token": access_token, "token_type": "bearer"}
     
     @get("/")
