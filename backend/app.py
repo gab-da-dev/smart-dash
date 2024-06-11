@@ -12,7 +12,7 @@ from controllers.auth_controller import AuthController
 from controllers.ingredient_controller import IngredientController
 from controllers.product_ingredient_controller import ProductIngredientController
 from controllers.store_profile_controller import StoreProfileController
-from controllers.product__category_controller import ProductCategoryController
+from controllers.product_category_controller import ProductCategoryController
 from db.repositories.product_repository import provide_limit_offset_pagination
 from litestar.di import Provide
 from controllers.product_controller import ProductController

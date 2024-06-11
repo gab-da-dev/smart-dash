@@ -2,6 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel as _BaseModel
 
+from schemas.product_schema import ProductReadFull
 from schemas.base import BaseSchema
 
 
@@ -23,6 +24,16 @@ class ProductCategoryRead(BaseModel):
     name: str
     active: bool
     description: str
+
+class ProductCategoryFullRead(BaseModel):
+    class Config:
+        orm_mode = True
+
+    id: UUID
+    name: str
+    active: bool
+    description: str
+    products: list[ProductReadFull]
 
 
 class ProductCategoryUpdate(BaseSchema):

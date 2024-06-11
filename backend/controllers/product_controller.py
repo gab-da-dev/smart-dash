@@ -12,7 +12,8 @@ from litestar.handlers.http_handlers.decorators import delete, patch, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadDetail, ProductUpdate
+from schemas.product_category_schema import ProductCategoryFullRead
+from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadFull, ProductUpdate
 from db.models.models import Product, ProductIngredient
 
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
@@ -61,12 +62,12 @@ class ProductController(Controller):
             title="Product ID",
             description="The product to retrieve.",
         ),
-    ) -> ProductReadDetail:
+    ) -> ProductReadFull:
         """Get an existing product."""
         
         obj = await products_repo.get(product_id)
         # obj = await products_repo.get_one_or_none(product_id)
-        return ProductReadDetail.model_validate(obj)
+        return ProductReadFull.model_validate(obj)
         
     # TODO: check how to put in a not found exception
     

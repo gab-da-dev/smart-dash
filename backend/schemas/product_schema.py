@@ -19,7 +19,7 @@ class IngredientRead(BaseModel):
     id: UUID
     name: str
     active: bool
-    price: str
+    price: float
 
 class ProductIngredientRead(BaseModel):
     id: UUID
@@ -45,7 +45,7 @@ class ProductRead(BaseModel):
     prep_time: str
 
 
-class ProductReadDetail(BaseModel):
+class ProductReadFull(BaseModel):
     class Config:
         orm_mode = True
 

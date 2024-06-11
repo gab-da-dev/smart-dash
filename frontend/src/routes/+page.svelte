@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import Cart from "$lib/components/UI/Cart.svelte";
 import Header from "$lib/components/UI/Header.svelte";
 import MenuItem from "$lib/components/UI/MenuItem.svelte";
@@ -6,8 +6,10 @@ import Modal from "$lib/components/UI/Modal.svelte";
 import MenuCategory from "$lib/components/UI/MenuCategory.svelte";
   
 import { createEventDispatcher } from 'svelte';
+import { getRequest } from '$lib/services/http_service';
 
 let modal_show = false;
+let categories:[]
 
 const dispatch = createEventDispatcher();
 
@@ -15,12 +17,15 @@ function view_product() {
     modal_show = true;
 }
 
-import { getRequest } from '$lib/services/http_service';
 
-getRequest('product-category/all')
+async function getCategoryProducts() {
+    getRequest('product-category/all')
   .then(data => {
-    console.log(data);
+    categories = data.items;
+    
+    console.log(categories.length);
   });
+}
 </script>
 
 <svelte:head>
@@ -59,14 +64,19 @@ getRequest('product-category/all')
                     <div class="row no-gutters">
                         <div class="col-md-10 offset-md-1" role="tablist">
                             <!-- Menu Category / Burgers -->
-                                <MenuCategory on:viewProduct={() => {
-                                    modal_show = true;
-                                }} title={'test'} category_id={'test'} products={'test'}></MenuCategory>
+                            {#await getRequest('product-category/all-categories-with-products') then value}
+                                {#each value.items as category}
+                                    <MenuCategory on:viewProduct={() => {
+                                        modal_show = true;
+                                    }} title={category.name} category_id={category.name} products={category.products}></MenuCategory>
 
+                                {/each}
+                            {/await}
+                            
                             <!-- Menu Category / Pasta -->
                             <div id="Pasta" class="menu-category">
                                 <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuPastaContent" data-toggle="collapse" aria-expanded="true">
-                                    <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/menu-title-pasta.jpg" alt=""></div>
+                                    <div class="bg-image" style='background-image: url("http://localhost:5173/img/kota.jpg");'><img src="http://localhost:5173/img/kota.jpg" alt=""></div>
                                     <h2 class="title">Pasta</h2>
                                 </div>
                                 <div id="menuPastaContent" class="menu-category-content collapse">
@@ -77,48 +87,7 @@ getRequest('product-category/all')
                                     ></MenuItem>
                                 </div>
                             </div>
-                            <!-- Menu Category / Pizza -->
-                            <div id="Pizza" class="menu-category">
-                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuPizzaContent" data-toggle="collapse" aria-expanded="false">
-                                    <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/menu-title-pizza.jpg" alt=""></div>
-                                    <h2 class="title">Pizza</h2>
-                                </div>
-                                <div id="menuPizzaContent" class="menu-category-content collapse">
-                                    <MenuItem></MenuItem>
-                                </div>
-                            </div>
-                            <!-- Menu Category / Sushi -->
-                            <div id="Sushi" class="menu-category">
-                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuSushiContent" data-toggle="collapse" aria-expanded="false">
-                                    <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/menu-title-sushi.jpg" alt=""></div>
-                                    <h2 class="title">Sushi</h2>
-                                </div>
-                                <div id="menuSushiContent" class="menu-category-content collapse">
-                                    <MenuItem></MenuItem>
-                                </div>
-                            </div>
-                            <!-- Menu Category / Desserts -->
-                            <div id="Desserts" class="menu-category">
-                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuDessertsContent" data-toggle="collapse" aria-expanded="false">
-                                    <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/menu-title-desserts.jpg" alt=""></div>
-                                    <h2 class="title">Desserts</h2>
-                                </div>
-                                <div id="menuDessertsContent" class="menu-category-content collapse">
-                                    
-                                    <MenuItem></MenuItem>
-                                </div>
-                            </div>
-                            <!-- Menu Category / Drinks -->
-                            <div id="Drinks" class="menu-category">
-                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuDrinksContent" data-toggle="collapse" aria-expanded="false">
-                                    <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/menu-title-drinks.jpg" alt=""></div>
-                                    <h2 class="title">Drinks</h2>
-                                </div>
-                                <div id="menuDrinksContent" class="menu-category-content collapse">
-                                    <MenuItem></MenuItem>
-                                    
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -129,7 +98,7 @@ getRequest('product-category/all')
         <!-- Content / End -->
     
         
-        <Cart></Cart>
+        <Cart/>
         <!-- Panel Mobile -->
         <nav id="panel-mobile">
             <div class="module module-logo bg-dark dark">
