@@ -54,7 +54,7 @@ class ProductController(Controller):
         return ProductRead.model_validate(obj)
 
 
-    @get(path="/{product_id:uuid}", dependencies={"products_repo": Provide(provide_product_details_repo)})
+    @get(path="/{product_id:uuid}", exclude_from_auth=True, dependencies={"products_repo": Provide(provide_product_details_repo)})
     async def get_product(
         self,
         products_repo: ProductRepository,

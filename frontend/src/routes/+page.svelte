@@ -10,6 +10,8 @@ import { getRequest } from '$lib/services/http_service';
 
 let modal_show = false;
 let categories:[]
+let product;
+let additional_ingredients;
 
 const dispatch = createEventDispatcher();
 
@@ -18,14 +20,25 @@ function view_product() {
 }
 
 
-async function getCategoryProducts() {
-    getRequest('product-category/all')
-  .then(data => {
-    categories = data.items;
+async function getProduct(id) {
     
-    console.log(categories.length);
+getRequest(`product/${id}`)
+  .then(data => {
+    console.log(data,'====product')
+    return data;
+    
   });
 }
+
+async function getIngredients() {
+    await getRequest(`/ingredient/all`)
+  .then(data => {
+    console.log(data.items,'yesr')
+    return data.items;
+    
+  });
+}
+// additional_ingredients = await getIngredients()
 </script>
 
 <svelte:head>
@@ -66,15 +79,18 @@ async function getCategoryProducts() {
                             <!-- Menu Category / Burgers -->
                             {#await getRequest('product-category/all-categories-with-products') then value}
                                 {#each value.items as category}
-                                    <MenuCategory on:viewProduct={() => {
-                                        modal_show = true;
+                                    <MenuCategory on:viewProduct={async (selected_product) => {
+                                        product = selected_product.detail
+                                        additional_ingredients = await getIngredients();
+                                        view_product();
+                                        
                                     }} title={category.name} category_id={category.name} products={category.products}></MenuCategory>
 
                                 {/each}
                             {/await}
                             
                             <!-- Menu Category / Pasta -->
-                            <div id="Pasta" class="menu-category">
+                            <!-- <div id="Pasta" class="menu-category">
                                 <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuPastaContent" data-toggle="collapse" aria-expanded="true">
                                     <div class="bg-image" style='background-image: url("http://localhost:5173/img/kota.jpg");'><img src="http://localhost:5173/img/kota.jpg" alt=""></div>
                                     <h2 class="title">Pasta</h2>
@@ -82,11 +98,12 @@ async function getCategoryProducts() {
                                 <div id="menuPastaContent" class="menu-category-content collapse">
                                     <MenuItem
                                     on:viewProduct={() => {
+                                        alert('view')
                                         modal_show = true;
                                     }}
                                     ></MenuItem>
                                 </div>
-                            </div>
+                            </div> -->
                             
                         </div>
                     </div>
@@ -127,12 +144,9 @@ async function getCategoryProducts() {
             on:closeModal={() => {
                 modal_show = !modal_show;
             }}
-            on:viewProduct={() => {
-                modal_show = true;
-                alert('test')
-            }}
-            >
-            </Modal>
+            
+            product={product}
+            />
     {/if}
     <!-- Cookies Bar -->
     <div id="cookies-bar" class="body-bar cookies-bar">

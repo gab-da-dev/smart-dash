@@ -14,16 +14,18 @@ const dispatch = createEventDispatcher();
 function toggle_menu() {
     show = ! show
 }
-console.log(products)
 </script>
-<div id="Burgers" class="menu-category" on:click={toggle_menu}>
+<div class="menu-category" on:click={toggle_menu}>
     <div class="menu-category-title collapse-toggle" role="tab" data-target="#{category_id}" data-toggle="collapse" aria-expanded="{show ? 'true' : 'false'}">
         <div class="bg-image" style='background-image: url("http://localhost:5173/img/Bunny_chow.jpg");'><img src="http://localhost:5173/img/kota.jpg" alt=""></div>
         <h2 class="title">{title}</h2>
     </div>
     <div id="{category_id}" class="menu-category-content collapse {show ? 'show' : ''}">
         {#each products as product}
-        <MenuItem name={product.name} price={product.price} product_ingredients={product.product_ingredients}/>
+            <MenuItem on:viewProduct={() => {
+                dispatch('viewProduct', product)
+                show = ! show
+            }} name={product.name} price={product.price} product_ingredients={product.product_ingredients}/>
         {/each}
         
     </div>

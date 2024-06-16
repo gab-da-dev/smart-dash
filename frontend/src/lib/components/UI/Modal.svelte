@@ -1,9 +1,11 @@
 <script>
+  import { getRequest } from '$lib/services/http_service';
+
 
 import { createEventDispatcher } from 'svelte';
 
-// export let modalTitle: string = '';
-// export let showCloseButton: boolean = true;
+ let additional_ingredients;
+export let product;
 
 const dispatch = createEventDispatcher();
 
@@ -11,24 +13,38 @@ function handleClose() {
     dispatch('closeModal');
 }
 
+function getIngredientNames(data) {
+    return data.map(item => item.ingredient.name).join(', ');;
+}
+
+async function init_data() {
+     await getRequest(`/ingredient/all`)
+  .then(data => {
+    console.log(data.items,'yesr')
+    additional_ingredients = data.items;
+    
+  });
+}
+console.log(product)
 </script>
 
 <!-- Modal / Product -->
+<!-- {#await init_data()} -->
 <div class="modal fade product-modal show" id="product-modal" role="dialog" style="display: block;">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header modal-header-lg dark bg-dark">
-                <div class="bg-image"><img src="http://assets.suelo.pl/soup/img/photos/modal-add.jpg" alt=""></div>
+                <div class="bg-image" style='background-image: url("http://localhost:5173/img/kota.jpg");'><img src="http://localhost:5173/img/Bunny_chow.jpg" alt=""></div>
                 <h4 class="modal-title">Specify your dish</h4>
                 <button type="button" on:click={handleClose} class="close" data-dismiss="modal" aria-label="Close"><i class="ti ti-close"></i></button>
             </div>
             <div class="modal-product-details">
                 <div class="row align-items-center">
                     <div class="col-9">
-                        <h6 class="mb-1 product-modal-name">Boscaiola Pasta</h6>
-                        <span class="text-muted product-modal-ingredients">Pasta, Cheese, Tomatoes, Olives</span>
+                        <h6 class="mb-1 product-modal-name">{product.name}</h6>
+                        <span class="text-muted product-modal-ingredients">{getIngredientNames(product.product_ingredients)}</span>
                     </div>
-                    <div class="col-3 text-lg text-right">$<span class="product-modal-price"></span></div>
+                    <div class="col-3 text-lg text-right">R<span class="product-modal-price">{product.price}</span></div>
                 </div>
             </div>
             <div class="modal-body panel-details-container">
@@ -78,49 +94,26 @@ function handleClose() {
                         </label>
                         <a href="#panel-details-additions-content" data-toggle="collapse">Additions</a>
                     </h5>
-                    <div id="panel-details-additions-content" class="collapse">
+                    <div id="panel-details-additions-content" class="collapse show">
                         <div class="panel-details-content">
                             <!-- Additions List -->
                             <div class="row product-modal-additions">
                                 <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input">
-                                            <span class="custom-control-indicator"></span>
-                                            <span class="custom-control-description">Tomato ($1.29)</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input">
-                                            <span class="custom-control-indicator"></span>
-                                            <span class="custom-control-description">Ham ($1.29)</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input">
-                                            <span class="custom-control-indicator"></span>
-                                            <span class="custom-control-description">Chicken ($1.29)</span>
-                                        </label>
-                                    </div>
+                                    {#await getRequest('ingredient/all') then value}
+                                        {#each value.items as additional_ingredient}
+                                            <div class="form-group">
+                                                <label class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input">
+                                                    <span class="custom-control-indicator"></span>
+                                                    <span class="custom-control-description">{additional_ingredient.name} R{additional_ingredient.price}</span>
+                                                </label>
+                                            </div>
+                                        {/each}
+                                    {/await}
+                                   
+                                    
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input">
-                                            <span class="custom-control-indicator"></span>
-                                            <span class="custom-control-description">Cheese($1.29)</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input">
-                                            <span class="custom-control-indicator"></span>
-                                            <span class="custom-control-description">Bacon ($1.29)</span>
-                                        </label>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -146,3 +139,4 @@ function handleClose() {
         </div>
     </div>
 </div>
+<!-- {/await} -->
