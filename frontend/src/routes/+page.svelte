@@ -9,14 +9,18 @@ import { createEventDispatcher } from 'svelte';
 import { getRequest } from '$lib/services/http_service';
 
 let modal_show = false;
+let cart_show = false;
 let categories:[]
+let cart:[];
 let product;
 let additional_ingredients;
+let body_overlay = false
 
 const dispatch = createEventDispatcher();
 
 function view_product() {
     modal_show = true;
+    body_overlay = true;
 }
 
 
@@ -38,7 +42,7 @@ async function getIngredients() {
     
   });
 }
-// additional_ingredients = await getIngredients()
+
 </script>
 
 <svelte:head>
@@ -52,7 +56,12 @@ async function getIngredients() {
     <div id="body-wrapper" class="animsition-">
     
         
-        <Header></Header>
+        <Header on:viewCart={() => {
+            cart_show = true;
+            body_overlay = true;
+            console.log('test')
+            
+        }}></Header>
     
         
     
@@ -89,21 +98,6 @@ async function getIngredients() {
                                 {/each}
                             {/await}
                             
-                            <!-- Menu Category / Pasta -->
-                            <!-- <div id="Pasta" class="menu-category">
-                                <div class="menu-category-title collapse-toggle" role="tab" data-target="#menuPastaContent" data-toggle="collapse" aria-expanded="true">
-                                    <div class="bg-image" style='background-image: url("http://localhost:5173/img/kota.jpg");'><img src="http://localhost:5173/img/kota.jpg" alt=""></div>
-                                    <h2 class="title">Pasta</h2>
-                                </div>
-                                <div id="menuPastaContent" class="menu-category-content collapse">
-                                    <MenuItem
-                                    on:viewProduct={() => {
-                                        alert('view')
-                                        modal_show = true;
-                                    }}
-                                    ></MenuItem>
-                                </div>
-                            </div> -->
                             
                         </div>
                     </div>
@@ -114,8 +108,15 @@ async function getIngredients() {
         </div>
         <!-- Content / End -->
     
-        
-        <Cart/>
+        {#if cart_show}
+            <Cart 
+                on:closeCart={() => {
+                cart_show = !cart_show;
+                body_overlay = !body_overlay;
+                }}
+                cart={cart}
+            />
+        {/if}
         <!-- Panel Mobile -->
         <nav id="panel-mobile">
             <div class="module module-logo bg-dark dark">
@@ -136,13 +137,16 @@ async function getIngredients() {
         </nav>
     
         <!-- Body Overlay -->
-        <div id="body-overlay"></div>
+        {#if body_overlay}
+            <div id="body-overlay" style="display: block;"></div>
+        {/if}
     
     </div>
     {#if modal_show}
         <Modal 
             on:closeModal={() => {
-                modal_show = !modal_show;
+                modal_show =!modal_show;
+                body_overlay =!body_overlay
             }}
             
             product={product}

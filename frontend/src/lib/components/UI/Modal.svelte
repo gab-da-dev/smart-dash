@@ -6,6 +6,7 @@ import { createEventDispatcher } from 'svelte';
 
  let additional_ingredients;
 export let product;
+let cart;
 
 const dispatch = createEventDispatcher();
 
@@ -57,7 +58,7 @@ console.log(product)
                         </label>
                         <a href="#panel-details-sizes-list" data-toggle="collapse">Size</a>
                     </h5>
-                    <div id="panel-details-sizes-list" class="collapse show">
+                    <div id="panel-details-sizes-list" class="collapse">
                         <div class="panel-details-content">
                             <div class="product-modal-sizes">
                                 <div class="form-group">
@@ -125,9 +126,9 @@ console.log(product)
                             <input name="radio_title_other" type="radio" class="custom-control-input">
                             <span class="custom-control-indicator"></span>
                         </label>
-                        <a href="#panel-details-other" data-toggle="collapse">Other</a>
+                        <a href="#panel-details-other" data-toggle="collapse">Note</a>
                     </h5>
-                    <div id="panel-details-other" class="collapse">
+                    <div id="panel-details-other" class="collapse show">
                         <form action="#">
                             <textarea cols="30" rows="4" class="form-control" placeholder="Put this any other informations..."></textarea>
                         </form>

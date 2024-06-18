@@ -1,3 +1,12 @@
+<script>
+    import { createEventDispatcher } from 'svelte';
+
+
+const dispatch = createEventDispatcher();
+    function handleOpenCart() {
+    dispatch('viewCart');
+}
+</script>
 <!-- Header -->
 <header id="header" class="light">
     
@@ -58,7 +67,7 @@
                 </div>
             </div>
             <div class="col-md-2">
-                <a href="#test" class="module module-cart right" data-toggle="panel-cart">
+                <a href="#test" on:click={handleOpenCart} class="module module-cart right" data-toggle="panel-cart">
                     <span class="cart-icon">
                         <i class="ti ti-shopping-cart"></i>
                         <span class="notification">0</span>

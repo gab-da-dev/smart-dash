@@ -1,27 +1,26 @@
 from __future__ import annotations
 
-from datetime import date
 from typing import TYPE_CHECKING, ClassVar
-from uuid import UUID
-from advanced_alchemy import NotFoundError
+from uuid import UUID, uuid4
 
 from pydantic import TypeAdapter
 # from pydantic import TypeAdapter
 
-from litestar import Litestar, get, put
+from litestar import get, put
 from litestar.controller import Controller
 from litestar.di import Provide
 from litestar.handlers.http_handlers.decorators import delete, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from schemas.order_schema import OrderCreate, OrderProductCreate, OrderRead, OrderUpdate
-from db.models.models import Order, OrderProduct
+from db.repositories.order_product_ingredient_repository import OrderProductIngredientRepository, provide_order_product_ingredient_repo
+from schemas.order_schema import OrderCreate, OrderRead, OrderUpdate
+from db.models.models import Order, OrderProduct, OrderProductIngredient
 
 from db.repositories.order_repository import OrderRepository, provide_order_details_repo, provide_order_repo
-from db.repositories.order_product_repository import OrderProductRepository, provide_order_product_details_repo, provide_order_product_repo
+from db.repositories.order_product_repository import OrderProductRepository, provide_order_product_repo
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+    pass
 
 
 
@@ -31,32 +30,48 @@ class OrderController(Controller):
 
     tags: ClassVar[list[str]] = ["order"]
 
-    @post(path="/", dependencies={"order_product_repo": Provide(provide_order_product_repo)})
+    @post(path="/", dependencies={"order_product_repo": Provide(provide_order_product_repo),"order_product_ingredient_repo": Provide(provide_order_product_ingredient_repo),})
     async def create_order(
         self,
         repository: OrderRepository,
         order_product_repo: OrderProductRepository,
+        order_product_ingredient_repo: OrderProductIngredientRepository,
         data: OrderCreate,
     ) -> OrderRead:
         """Create a new Order."""
-        obj = await repository.add(
-            Order(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['order'])),
-
-        )
+        order_item = Order(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['order']))
+        await repository.add(order_item)
         await repository.session.commit()
+        # Order(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['order'])),
+        for order_product_data in data.order:
+            order_product = OrderProduct(
+                order_id=order_item.id,
+                product_id=order_product_data.product_id,
+                note=order_product_data.note
+            )
+            await order_product_repo.add(order_product)
+            await order_product_repo.session.commit()  # Commit to get the order_product ID
 
-        order_product = data.order
-        order_array = []
+        for ingredient_id in order_product_data.additional_ingredients:
+            order_product_ingredient = OrderProductIngredient(
+                order_product_id=order_product.id,
+                ingredient_id=ingredient_id,
+            )
+            await order_product_ingredient_repo.add(order_product_ingredient)
+            await order_product_ingredient_repo.session.commit()
+        # order_product = data.order
+        # order_array = []
         
-        for order in order_product:
-            order_product_obj = order.model_dump()
-            order_product_obj['order_id'] = obj.id
-            order_array.append(order_product_obj)
-            await order_product_repo.add(OrderProduct(order_id=order_product_obj['order_id'],note=order_product_obj['note'],product_id=order_product_obj['product_id'],quantity=order_product_obj['quantity'],price=order_product_obj['price']))
-        
-        await order_product_repo.session.commit()
-        
-        return OrderRead.model_validate(obj)
+        # for order in order_product:
+        #     order_product_obj = order.model_dump()
+        #     order_product_obj['order_id'] = obj.id
+        #     order_array.append(order_product_obj)
+        #     await order_product_repo.add(OrderProduct(order_id=order_product_obj['order_id'],note=order_product_obj['note'],product_id=order_product_obj['product_id'],quantity=order_product_obj['quantity'],price=order_product_obj['price']))
+        #     for order_ingredient in order_product:
+        #         order_ingredient
+        # await order_product_repo.session.commit()
+        return order_item.to_dict()
+        return OrderRead.model_validate(order_item)
 
        
     @get(path="/{order_id:uuid}", dependencies={"orders_repo": Provide(provide_order_details_repo)})

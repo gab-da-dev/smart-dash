@@ -117,11 +117,20 @@ class OrderProduct(UUIDAuditBase):
     order_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("order.id"))
     product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("product.id"))
     note: Mapped[str] = mapped_column(Text(), nullable=True)
-    quantity: Mapped[int] = mapped_column(Integer(),default=1)
-    price: Mapped[float] = mapped_column(Float(), nullable=False)
-    # user: Mapped[User] = relationship(back_populates="orders", lazy="selectin")
+     #relationship
+    OrderProductIngredient: Mapped[list["OrderProductIngredient"]] = relationship(lazy="selectin")
+    # user: Mapped['OrderProductIngredient'] = relationship(back_populates="orders", lazy="selectin")
 
 
+class OrderProductIngredient(UUIDAuditBase):
+
+    __tablename__ = "order_product_ingredient"
+
+    order_product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("order_product.id"))
+    ingredient_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("ingredient.id"))
+    #relationship
+    # OrderProductIngredient: Mapped[list["OrderProductIngredient"]] = relationship(lazy="selectin")
+    
 class Promotion(UUIDAuditBase):
 
     __tablename__ = "promotion"

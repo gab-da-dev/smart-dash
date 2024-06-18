@@ -27,12 +27,10 @@ class Order(BaseModel):
 class OrderProduct(BaseModel):
     class Config:
         orm_mode = True
-    
-    # name: str
     product_id: UUID
-    quantity: int
-    price: float
     note: str
+    additional_ingredients: list[UUID]
+
 
 class OrderProductCreate(BaseModel):
     class Config:
@@ -54,8 +52,8 @@ class OrderRead(BaseModel):
     distance: str 
     driver_latitude: str 
     driver_longitude: str 
-    delivery_latitude: str 
-    delivery_longitude: str 
+    delivery_location_latitude: str 
+    delivery_location_longitude: str 
     order_type: OrderType 
     food_rating: Rating 
     food_comment: str 
@@ -75,8 +73,8 @@ class OrderUpdate(BaseSchema):
     distance: str 
     driver_latitude: str  
     driver_longitude: str 
-    delivery_latitude: str 
-    delivery_longitude: str 
+    delivery_location_latitude: str 
+    delivery_location_longitude: str  
     food_rating: Rating 
     food_comment: str 
     driver_rating: Rating 
@@ -94,8 +92,8 @@ class OrderCreate(BaseModel):
     distance: float 
     status: bool
     address: str
-    delivery_latitude: str 
-    delivery_longitude: str 
+    delivery_location_latitude: str 
+    delivery_location_longitude: str  
     collect_status: bool | None
     delivery_status: str | None
     driver_latitude: str | None
