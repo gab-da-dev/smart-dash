@@ -5,22 +5,23 @@ from uuid import UUID
 
 from pydantic import TypeAdapter
 
-from litestar import Litestar, get, put
+from litestar import get, put
 from litestar.controller import Controller
 from litestar.di import Provide
-from litestar.handlers.http_handlers.decorators import delete, patch, post
+from litestar.handlers.http_handlers.decorators import delete, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from schemas.product_category_schema import ProductCategoryFullRead
+from db.repositories.product_size_repository import ProductSizeRepository, provide_product_size_repo
+from schemas.product_size_schema import ProductSizeCreate, ProductSizeRead
 from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadFull, ProductUpdate
-from db.models.models import Product, ProductIngredient
+from db.models.models import Product, ProductIngredient, ProductSize
 
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
 from db.repositories.product_ingredient_repository import provide_product_ingredients_repo, ProductIngredientRepository
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+    pass
 
 
 
@@ -145,3 +146,29 @@ class ProductController(Controller):
         """Create a new product ingredient."""
         await product_ingredients_repo.delete(product_ingredient_id)
         product_ingredients_repo.session.commit()
+
+
+    @post(path="/{product_id:uuid}/product-size", dependencies={"product_size_repo": Provide(provide_product_size_repo)})
+    async def create_product_size(
+        self,
+        product_id: UUID,
+        product_size_repo: ProductSizeRepository,
+        data: ProductSizeCreate,
+    ) -> ProductSizeRead:
+        """Create a new product ingredient."""
+        obj = await product_size_repo.add(
+            ProductSize(product_id=product_id,**data.model_dump(exclude_unset=True, exclude_none=True)),
+
+        )
+        await product_size_repo.session.commit()
+        return ProductSizeRead.model_validate(obj)
+    
+    @delete(path="/{product_id:uuid}/product-size/{product_size_id:uuid}", dependencies={"product_size_repo": Provide(provide_product_size_repo)})
+    async def delete_product_size(
+        self,
+        product_size_id: UUID,
+        product_size_repo: ProductSizeRepository,
+    ) -> None:
+        """Create a new product size."""
+        await product_size_repo.delete(product_size_id)
+        product_size_repo.session.commit()

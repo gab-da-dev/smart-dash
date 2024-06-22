@@ -2,6 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel as _BaseModel
 
+from schemas.product_size_schema import ProductSizeRead
 from schemas.base import BaseSchema
 
 
@@ -58,6 +59,7 @@ class ProductReadFull(BaseModel):
     price: float
     prep_time: str
     product_ingredients:list[ProductIngredientRead]
+    product_size:list[ProductSizeRead]
 
 
 class ProductUpdate(BaseSchema):

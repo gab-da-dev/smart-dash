@@ -86,7 +86,8 @@ class OrderController(Controller):
         """Get an existing order."""
         
         obj = await orders_repo.get(order_id)
-        return OrderRead.model_validate(obj)
+        # return OrderRead.model_validate(obj)
+        return obj.to_dict()
         
     # TODO: check how to put in a not found exception
     

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { getRequest } from '$lib/services/http_service';
 
 
@@ -7,6 +7,25 @@ import { createEventDispatcher } from 'svelte';
  let additional_ingredients;
 export let product;
 let cart;
+let order_item = {
+    additional_ingredient: [],
+    note: "",
+    product_size_id: ""
+};
+
+ // Function to update the ingredientIds array based on checkbox state
+ function updateIngredientIds(id, checked) {
+        if (checked) {
+            // Add the id if the checkbox is checked
+            if (!order_item.additional_ingredient.includes(id)) {
+                order_item.additional_ingredient = [...order_item.additional_ingredient, id];
+            }
+        } else {
+            // Remove the id if the checkbox is unchecked
+            order_item.additional_ingredient = order_item.additional_ingredient.filter(item => item !== id);
+        }
+        console.log(order_item)
+    }
 
 const dispatch = createEventDispatcher();
 
@@ -26,7 +45,9 @@ async function init_data() {
     
   });
 }
-console.log(product)
+function toggle_menu() {
+    console.log(order_item)
+}
 </script>
 
 <!-- Modal / Product -->
@@ -58,33 +79,24 @@ console.log(product)
                         </label>
                         <a href="#panel-details-sizes-list" data-toggle="collapse">Size</a>
                     </h5>
-                    <div id="panel-details-sizes-list" class="collapse">
+                    {#if product.product_size.length > 0}
+                    <div id="panel-details-sizes-list" class="collapse show">
                         <div class="panel-details-content">
                             <div class="product-modal-sizes">
+                                {#each product.product_size as product_size}
                                 <div class="form-group">
                                     <label class="custom-control custom-radio">
-                                        <input name="radio_size" type="radio" class="custom-control-input" checked>
+                                        <input name="radio_size" type="radio" class="custom-control-input" value={product_size.id} bind:group={order_item.product_size_id}>
                                         <span class="custom-control-indicator"></span>
-                                        <span class="custom-control-description">Small - 100g ($9.99)</span>
+                                        <span class="custom-control-description">{product_size.name} (R{product_size.price})</span>
                                     </label>
                                 </div>
-                                <div class="form-group">
-                                    <label class="custom-control custom-radio">
-                                        <input name="radio_size" type="radio" class="custom-control-input">
-                                        <span class="custom-control-indicator"></span>
-                                        <span class="custom-control-description">Medium - 200g ($14.99)</span>
-                                    </label>
-                                </div>
-                                <div class="form-group">
-                                    <label class="custom-control custom-radio">
-                                        <input name="radio_size" type="radio" class="custom-control-input">
-                                        <span class="custom-control-indicator"></span>
-                                        <span class="custom-control-description">Large - 350g ($21.99)</span>
-                                    </label>
-                                </div>
+                                {/each}
+                                
                             </div>
                         </div>
                     </div>
+                    {/if}
                 </div>
                 <!-- Panel Details / Additions -->
                 <div class="panel-details panel-details-additions">
@@ -104,7 +116,7 @@ console.log(product)
                                         {#each value.items as additional_ingredient}
                                             <div class="form-group">
                                                 <label class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input">
+                                                    <input name="test" type="checkbox" value={additional_ingredient.id} class="custom-control-input" on:change="{(e) => updateIngredientIds(additional_ingredient.id, e.target.checked)}">
                                                     <span class="custom-control-indicator"></span>
                                                     <span class="custom-control-description">{additional_ingredient.name} R{additional_ingredient.price}</span>
                                                 </label>
@@ -130,12 +142,12 @@ console.log(product)
                     </h5>
                     <div id="panel-details-other" class="collapse show">
                         <form action="#">
-                            <textarea cols="30" rows="4" class="form-control" placeholder="Put this any other informations..."></textarea>
+                            <textarea cols="30" rows="4" class="form-control" placeholder="Put this any other informations..." bind:value={order_item.note}></textarea>
                         </form>
                     </div>
                 </div>
             </div>
-            <button type="button" class="modal-btn btn btn-secondary btn-block btn-lg" data-action="add-to-cart"><span>Add to Cart</span></button>
+            <button type="button" on:click={toggle_menu} class="modal-btn btn btn-secondary btn-block btn-lg" data-action="add-to-cart"><span>Add to Cart</span></button>
             <button type="button" class="modal-btn btn btn-secondary btn-block btn-lg" data-action="update-cart"><span>Update</span></button>
         </div>
     </div>
