@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, Annotated, ClassVar
 from uuid import UUID
 
 from pydantic import TypeAdapter
@@ -16,7 +16,8 @@ from db.repositories.product_size_repository import ProductSizeRepository, provi
 from schemas.product_size_schema import ProductSizeCreate, ProductSizeRead
 from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadFull, ProductUpdate
 from db.models.models import Product, ProductIngredient, ProductSize
-
+from litestar.enums import RequestEncodingType
+from litestar.params import Body
 from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
 from db.repositories.product_ingredient_repository import provide_product_ingredients_repo, ProductIngredientRepository
 
@@ -36,7 +37,7 @@ class ProductController(Controller):
         self,
         repository: ProductRepository,
         product_ingredients_repo: ProductIngredientRepository,
-        data: ProductCreate,
+        data: Annotated[ProductCreate, Body(media_type=RequestEncodingType.MULTI_PART)],
     ) -> ProductRead:
         """Create a new product."""
         obj = await repository.add(

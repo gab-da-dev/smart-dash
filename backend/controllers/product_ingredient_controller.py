@@ -1,25 +1,23 @@
 from __future__ import annotations
 
-from datetime import date
 from typing import TYPE_CHECKING, ClassVar
 from uuid import UUID
 
 from pydantic import TypeAdapter
-from litestar import Litestar, get, put
+from litestar import get, put
 from litestar.controller import Controller
 from litestar.di import Provide
-from litestar.handlers.http_handlers.decorators import delete, patch, post
+from litestar.handlers.http_handlers.decorators import delete, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from db.repositories.product_ingredient_repository import provide_product_ingredient_details_repo, ProductIngredientRepository, provide_product_ingredients_repo
+from db.repositories.product_ingredient_repository import ProductIngredientRepository, provide_product_ingredients_repo
 from schemas.product_schema import ProductIngredientCreate, ProductIngredientRead, ProductIngredientUpdate
 from db.models.models import ProductIngredient
 
-from db.repositories.product_repository import provide_products_repo
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+    pass
 
 
 
