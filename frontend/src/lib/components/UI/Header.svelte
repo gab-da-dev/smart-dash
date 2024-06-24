@@ -25,7 +25,7 @@ const dispatch = createEventDispatcher();
                 <nav class="module module-navigation left mr-4">
                     <ul id="nav-main" class="nav nav-main">
                         <li class="has-dropdown">
-                            <a href="#test">Home</a>
+                            <a href="/">Home</a>
                             <div class="dropdown-container">
                                 <ul>
                                     <li><a href="index.html">Home Basic</a></li>
