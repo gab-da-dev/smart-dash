@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, ClassVar
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pydantic import TypeAdapter
 
@@ -42,11 +42,13 @@ class ProductController(Controller):
         data: ProductCreate = Body(media_type=RequestEncodingType.MULTI_PART),
     ) -> ProductRead:
         """Create a new product."""
-        file_location = f"static/uploads/{data.image.filename}"
+        file_extension = Path(data.image.filename).suffix
+        random_filename = f"{uuid4()}{file_extension}"
+        file_location = UPLOAD_DIRECTORY / random_filename
         with open(file_location, "wb") as f:
             f.write(await data.image.read())
             obj = await repository.add(
-                Product(image=data.image.filename, **data.model_dump(exclude_unset=True, exclude_none=True, exclude=['ingredients', 'image'])),
+                Product(image=random_filename, **data.model_dump(exclude_unset=True, exclude_none=True, exclude=['ingredients', 'image'])),
 
             )
         await repository.session.commit()
@@ -54,8 +56,8 @@ class ProductController(Controller):
         product_id = obj.id
 
         # Update ingredients with product ID
-        # for ingredient in data.ingredients:
-        #     await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
+        for ingredient_id in data.ingredients:
+            await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient_id))
 
         # await product_ingredients_repo.session.commit()
         return ProductRead.model_validate(obj)
