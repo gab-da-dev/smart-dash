@@ -45,6 +45,15 @@ class ProductRead(BaseModel):
     prep_time: str
 
 
+class ProductReadBasic(BaseModel):
+    class Config:
+        orm_mode = True
+
+    name: str
+    active: bool
+    price: float
+    prep_time: str
+
 class ProductReadFull(BaseModel):
     class Config:
         orm_mode = True

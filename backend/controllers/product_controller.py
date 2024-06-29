@@ -15,7 +15,7 @@ from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
 from db.repositories.product_size_repository import ProductSizeRepository, provide_product_size_repo
 from schemas.product_size_schema import ProductSizeCreate, ProductSizeRead
-from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadFull, ProductUpdate
+from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadBasic, ProductReadFull, ProductUpdate
 from db.models.models import Product, ProductIngredient, ProductSize
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
@@ -90,8 +90,8 @@ class ProductController(Controller):
         )-> OffsetPagination[Product]:
         """Get list of products."""
         results, total = await repository.list_and_count(limit_offset)
-        type_adapter = TypeAdapter(list[ProductRead])
-        return OffsetPagination[ProductRead](
+        type_adapter = TypeAdapter(list[ProductReadBasic])
+        return OffsetPagination[ProductReadBasic](
             items=type_adapter.validate_python(results),
             total=total,
             limit=limit_offset.limit,
