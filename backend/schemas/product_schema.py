@@ -83,4 +83,4 @@ class ProductCreate(BaseModel):
     product_category_id: str
     price: float
     prep_time: str
-    ingredients: list[ProductIngredientCreate]
+    ingredients: list[ProductIngredientCreate] | None

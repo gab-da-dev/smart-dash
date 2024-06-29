@@ -14,7 +14,11 @@ const getRequest = (endpoint) => {
 
 const postRequest = (endpoint, data) => {
   return axios
-    .post(`${BASE_URL}${endpoint}`, data)
+    .post(`${BASE_URL}${endpoint}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
     .then((response) => response.data)
     .catch((error) => {
       console.error("Axios POST request failed:", error);

@@ -15,7 +15,7 @@ from controllers.store_profile_controller import StoreProfileController
 from controllers.product_category_controller import ProductCategoryController
 from db.repositories.product_repository import provide_limit_offset_pagination
 from litestar.di import Provide
-from controllers.product_controller import ProductController
+from controllers.product_controller import ProductController, serve_product_file
 from controllers.order_controller import OrderController
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.spec import Components, SecurityScheme, Tag
@@ -64,7 +64,7 @@ app = Litestar(
     cors_config=CORSConfig(allow_origins=["*"]),
     middleware=[auth_mw],
     debug=True,
-    route_handlers=[ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController,AuthController],
+    route_handlers=[serve_product_file, ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController,AuthController],
     on_startup=[init_db, get_db_connection],
     plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
     dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},

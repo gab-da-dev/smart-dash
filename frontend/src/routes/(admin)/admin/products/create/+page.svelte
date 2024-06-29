@@ -3,66 +3,24 @@
   import { json } from "@sveltejs/kit";
 
  let product = {
-    name: 'test',
-    active: true,
-    description: 'test',
-    image: null,
-    product_category_id:'aaa0f3d1-339b-4a2d-acaa-092210823135',
-    price: 2.3,
-    prep_time: 5,
-    ingredients: []
+    name: '',
+    active: '',
+    description: '',
+    image: '',
+    product_category_id:'',
+    price: '',
+    prep_time: ''
 }
-
-// async function submit() {
-//     console.log(JSON.stringify(product))
-//     await postRequest(`/product`, JSON.stringify(product))
-//   .then(data => {
-//     console.log(data)
-//     return data.items;
-    
-//   });
-// }
 
 async function submit() {
-  try {
-    console.log('FormData:', product);
-    // Create a FormData object
-    const formData = new FormData();
+    console.log(json(product))
+    await postRequest(`/product`, json(product))
+  .then(data => {
+    console.log(data)
+    return data.items;
     
-    // Append each key-value pair from the product object to the FormData object
-    Object.keys(product).forEach(key => {
-        if (key !== 'image') {
-          formData.append(key, product[key]);
-        }
-      });
-    
-    // Append the image file to the FormData object
-    formData.append('image', product.image);
-      
-      // Log the FormData object for debugging
-      console.log('FormData:', formData);
-
-      // Send a POST request with the FormData
-      const response = await postRequest('/product', formData);
-
-      // Log the response data
-      console.log(response);
-
-
-    // Return the items from the response data
-    return response.items;
-  } catch (error) {
-    // Handle any errors that occurred during the request
-    console.error('Error submitting product:', error);
-    throw error; // Rethrow the error if you want to propagate it further
-  }
+  });
 }
-
-function handleFileInput(event) {
-    const file = event.target.files[0];
-    product.image = file;
-  }
-
 
 </script>
 
@@ -76,7 +34,7 @@ function handleFileInput(event) {
 
             <div class="mb-4">
                 <label for="active" class="block text-sm font-medium text-gray-700">Active</label>
-                <input type="checkbox" name="active" bind:checked={product.active} class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <input type="checkbox" name="active" bind:value={product.active} class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
 
             <div class="mb-4">
@@ -86,7 +44,7 @@ function handleFileInput(event) {
 
             <div class="mb-4">
                 <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
-                <input type="file" name="image" on:change={handleFileInput} class="mt-1 block w-full text-gray-900 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <input type="file" name="image" bind:value={product.image} class="mt-1 block w-full text-gray-900 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
 
             <div class="mb-4">

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, ClassVar
 from uuid import UUID
 
 from pydantic import TypeAdapter
 
-from litestar import get, put
+from litestar import Response, get, put
 from litestar.controller import Controller
 from litestar.di import Provide
 from litestar.handlers.http_handlers.decorators import delete, post
@@ -24,7 +25,8 @@ from db.repositories.product_ingredient_repository import provide_product_ingred
 if TYPE_CHECKING:
     pass
 
-
+UPLOAD_DIRECTORY = Path("uploads")
+UPLOAD_DIRECTORY.mkdir(exist_ok=True)
 
 class ProductController(Controller):
     path = "/product"
@@ -32,28 +34,33 @@ class ProductController(Controller):
 
     tags: ClassVar[list[str]] = ["product"]
 
-    @post(path="/", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+    @post(path="/", exclude_from_auth=True, dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
     async def create_product(
         self,
         repository: ProductRepository,
         product_ingredients_repo: ProductIngredientRepository,
-        data: Annotated[ProductCreate, Body(media_type=RequestEncodingType.MULTI_PART)],
+        data: ProductCreate = Body(media_type=RequestEncodingType.MULTI_PART),
     ) -> ProductRead:
         """Create a new product."""
-        obj = await repository.add(
-            Product(**data.model_dump(exclude_unset=True, exclude_none=True, exclude=['ingredients'])),
+        file_location = f"static/uploads/{data.image.filename}"
+        with open(file_location, "wb") as f:
+            f.write(await data.image.read())
+            obj = await repository.add(
+                Product(image=data.image.filename, **data.model_dump(exclude_unset=True, exclude_none=True, exclude=['ingredients', 'image'])),
 
-        )
+            )
         await repository.session.commit()
          # Extract the product ID
         product_id = obj.id
 
         # Update ingredients with product ID
-        for ingredient in data.ingredients:
-            await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
+        # for ingredient in data.ingredients:
+        #     await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient.ingredient_id))
 
-        await product_ingredients_repo.session.commit()
+        # await product_ingredients_repo.session.commit()
         return ProductRead.model_validate(obj)
+    
+    
 
 
     @get(path="/{product_id:uuid}", exclude_from_auth=True, dependencies={"products_repo": Provide(provide_product_details_repo)})
@@ -173,3 +180,15 @@ class ProductController(Controller):
         """Create a new product size."""
         await product_size_repo.delete(product_size_id)
         product_size_repo.session.commit()
+
+
+@get(path="/uploads/{filename:str}", exclude_from_auth=True)
+async def serve_product_file(filename: str) -> Response:
+    
+    file_path = UPLOAD_DIRECTORY / filename
+    if file_path.exists():
+        return Response(
+            content=file_path.read_bytes(),
+            media_type="image/jpeg",
+        )
+    return Response(status_code=404)
