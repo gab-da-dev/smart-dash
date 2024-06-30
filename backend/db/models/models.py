@@ -54,6 +54,7 @@ class ProductCategory(UUIDAuditBase):
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     description: Mapped[str] = mapped_column(Text(), nullable=False)
+    image: Mapped[str] = mapped_column(Text(), nullable=False)
     # size_pricing: Mapped[Author] = relationship(lazy="joined", innerjoin=True, viewonly=True)
     products: Mapped[list["Product"]] = relationship(lazy="selectin")
 

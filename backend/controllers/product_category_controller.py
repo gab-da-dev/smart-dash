@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pydantic import TypeAdapter
 # from pydantic import TypeAdapter
@@ -14,13 +15,15 @@ from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
 from schemas.product_category_schema import ProductCategoryCreate, ProductCategoryFullRead, ProductCategoryRead, ProductCategoryUpdate
 from db.models.models import Product, ProductCategory
-
+from litestar.enums import RequestEncodingType
+from litestar.params import Body
 from db.repositories.product_category_repository import ProductCategoryRepository, provide_product_category_details_repo, provide_product_categories_repo
 
 if TYPE_CHECKING:
     pass
 
-
+UPLOAD_DIRECTORY = Path("uploads")
+UPLOAD_DIRECTORY.mkdir(exist_ok=True)
 
 class ProductCategoryController(Controller):
     path = "/product-category"
@@ -28,17 +31,23 @@ class ProductCategoryController(Controller):
 
     tags: ClassVar[list[str]] = ["product_category"]
 
-    @post(path="/")
+    @post(path="/", exclude_from_auth=True)
     async def create_product_category(
         self,
         repository: ProductCategoryRepository,
-        data: ProductCategoryCreate,
+        data: ProductCategoryCreate = Body(media_type=RequestEncodingType.MULTI_PART),
     ) -> ProductCategoryRead:
         """Create a new product."""
-        obj = await repository.add(
-            ProductCategory(**data.model_dump(exclude_unset=True, exclude_none=True)),
+        file_extension = Path(data.image.filename).suffix
+        random_filename = f"{uuid4()}{file_extension}"
+        file_location = UPLOAD_DIRECTORY / random_filename
+        with open(file_location, "wb") as f:
+            f.write(await data.image.read())
+            obj = await repository.add(
+                ProductCategory(image=random_filename, **data.model_dump(exclude_unset=True, exclude_none=True, exclude=['image'])),
 
-        )
+            )
+        
         await repository.session.commit()
         return ProductCategoryRead.model_validate(obj)
 

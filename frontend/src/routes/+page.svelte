@@ -93,7 +93,7 @@ async function getIngredients() {
                                         additional_ingredients = await getIngredients();
                                         view_product();
                                         
-                                    }} title={category.name} category_id={category.name} products={category.products}></MenuCategory>
+                                    }} title={category.name} image={category.image} category_id={category.name} products={category.products}></MenuCategory>
 
                                 {/each}
                             {/await}

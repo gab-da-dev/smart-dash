@@ -56,7 +56,7 @@ function toggle_menu() {
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header modal-header-lg dark bg-dark">
-                <div class="bg-image" style='background-image: url("http://localhost:5173/img/kota.jpg");'><img src="http://localhost:5173/img/Bunny_chow.jpg" alt=""></div>
+                <div class="bg-image" style='background-image: url("http://localhost:8000/uploads/{product.image}");'><img src="http://localhost:5173/img/Bunny_chow.jpg" alt=""></div>
                 <h4 class="modal-title">Specify your dish</h4>
                 <button type="button" on:click={handleClose} class="close" data-dismiss="modal" aria-label="Close"><i class="ti ti-close"></i></button>
             </div>

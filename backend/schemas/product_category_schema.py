@@ -4,7 +4,7 @@ from pydantic import BaseModel as _BaseModel
 
 from schemas.product_schema import ProductReadFull
 from schemas.base import BaseSchema
-
+from litestar.datastructures import UploadFile
 
 class BaseModel(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
@@ -24,6 +24,7 @@ class ProductCategoryRead(BaseModel):
     name: str
     active: bool
     description: str
+    image: str
 
 class ProductCategoryFullRead(BaseModel):
     class Config:
@@ -31,6 +32,7 @@ class ProductCategoryFullRead(BaseModel):
 
     id: UUID
     name: str
+    image: str
     active: bool
     description: str
     products: list[ProductReadFull]
@@ -45,8 +47,10 @@ class ProductCategoryUpdate(BaseSchema):
 class ProductCategoryCreate(BaseModel):
     class Config:
         orm_mode = True
+        arbitrary_types_allowed = True
 
     name: str
     active: bool
     description: str
+    image: UploadFile | None
 
