@@ -4,7 +4,10 @@
         postRequest
     } from "$lib/services/http_service";
     import {
-        json
+        json,
+
+        redirect
+
     } from "@sveltejs/kit";
 
     let product = {
@@ -67,14 +70,18 @@
             console.log('FormData:', formData);
 
             // Send a POST request with the FormData
-            const response = await postRequest('/product', formData);
+            const response = await postRequest('/product', formData,{
+                "Content-Type": "multipart/form-data",
+            });
 
             // Log the response data
             console.log(response);
 
-
+            
             // Return the items from the response data
-            return response.items;
+            // redirect(302, '/products');
+            window.location.href = "/admin/products";
+
         } catch (error) {
             // Handle any errors that occurred during the request
             console.error('Error submitting product:', error);

@@ -12,12 +12,10 @@ const getRequest = (endpoint) => {
     });
 };
 
-const postRequest = (endpoint, data) => {
+const postRequest = (endpoint, data, headers) => {
   return axios
     .post(`${BASE_URL}${endpoint}`, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: headers,
     })
     .then((response) => response.data)
     .catch((error) => {
