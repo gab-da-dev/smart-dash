@@ -421,7 +421,7 @@
         </div>
       </div>
     </nav>
-    <div class="mt-12">
+    <div class="max-w-2xl mx-auto bg-white p-4 rounded-lg shadow-lg">
       <slot />
 
       <!-- <div class="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-3">

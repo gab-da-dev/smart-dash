@@ -1,0 +1,10 @@
+<script>
+    export let submit;
+</script>
+
+<button
+    on:click={submit}
+    type="button"
+    class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] flex items-center gap-4 px-4 capitalize"
+    >Create Product</button
+>
