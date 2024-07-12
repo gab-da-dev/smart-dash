@@ -7,7 +7,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from litestar.exceptions import NotAuthorizedException
 from litestar import Litestar, Request, get
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
-from litestar.contrib.sqlalchemy.plugins import AsyncSessionConfig, SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
+from litestar.contrib.sqlalchemy.plugins import (
+    AsyncSessionConfig,
+    SQLAlchemyAsyncConfig,
+    SQLAlchemyInitPlugin,
+)
 from controllers.auth_controller import AuthController
 from controllers.ingredient_controller import IngredientController
 from controllers.product_ingredient_controller import ProductIngredientController
@@ -28,13 +32,15 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engin
 from litestar.config.cors import CORSConfig
 
 from security.authentication_middleware import JWTAuthenticationMiddleware
+
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
-    
+
 
 session_config = AsyncSessionConfig(expire_on_commit=False)
 sqlalchemy_config = SQLAlchemyAsyncConfig(
-    connection_string="postgresql+asyncpg://developer:user@localhost:5600/smart_dash", session_config=session_config
+    connection_string="postgresql+asyncpg://developer:user@localhost:5600/smart_dash",
+    session_config=session_config,
 )  # Create 'async_session' dependency.
 sqlalchemy_plugin = SQLAlchemyInitPlugin(config=sqlalchemy_config)
 
@@ -43,7 +49,7 @@ async def init_db() -> None:
     """Initializes the database."""
     async with sqlalchemy_config.get_engine().begin() as conn:
         conn.engine
-        await conn.run_sync(UUIDBase.metadata.create_all)
+        await conn.run_sync(UUIDAuditBase.metadata.create_all)
 
 
 def get_db_connection(app: Litestar) -> "AsyncEngine":
@@ -52,11 +58,14 @@ def get_db_connection(app: Litestar) -> "AsyncEngine":
     If it doesn't exist, creates it and saves it in on the application state object
     """
     if not getattr(app.state, "engine", None):
-        app.state.engine = create_async_engine("postgresql+asyncpg://developer:user@localhost:5600/smart_dash")
+        app.state.engine = create_async_engine(
+            "postgresql+asyncpg://developer:user@localhost:5600/smart_dash"
+        )
     return cast("AsyncEngine", app.state.engine)
 
-SECRET_KEY = 'your_secret_key'
-ALGORITHM = 'HS256'
+
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
 
 
 auth_mw = DefineMiddleware(JWTAuthenticationMiddleware, exclude="schema")
@@ -64,8 +73,17 @@ app = Litestar(
     cors_config=CORSConfig(allow_origins=["*"]),
     middleware=[auth_mw],
     debug=True,
-    route_handlers=[serve_product_file, ProductController,ProductCategoryController,StoreProfileController, OrderController,ProductIngredientController, IngredientController,AuthController],
-    on_startup=[init_db, get_db_connection],
+    route_handlers=[
+        serve_product_file,
+        ProductController,
+        ProductCategoryController,
+        StoreProfileController,
+        OrderController,
+        ProductIngredientController,
+        IngredientController,
+        AuthController,
+    ],
+    on_startup=[get_db_connection],
     plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
     dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},
     openapi_config=OpenAPIConfig(
@@ -80,5 +98,5 @@ app = Litestar(
                 )
             },
         ),
-    )
+    ),
 )

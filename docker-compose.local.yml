@@ -11,7 +11,7 @@ services:
       - "5600:5432"
 
   backend:
-    image: python:3.9-alpine
+    image: python:3.11-slim-bullseye
     container_name: backend
     working_dir: /app
     build: ./backend
