@@ -37,9 +37,12 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 
 
+# sqlalchemy_config = SQLAlchemySyncConfig(connection_string="sqlite:///test.sqlite")  # Create 'db_session' dependency.
+# sqlalchemy_plugin = SQLAlchemyInitPlugin(config=sqlalchemy_config)
+
 session_config = AsyncSessionConfig(expire_on_commit=False)
 sqlalchemy_config = SQLAlchemyAsyncConfig(
-    connection_string="postgresql+asyncpg://developer:user@localhost:5600/smart_dash",
+    connection_string="postgresql+asyncpg://developer:user@postgres:5432/smart_dash",
     session_config=session_config,
 )  # Create 'async_session' dependency.
 sqlalchemy_plugin = SQLAlchemyInitPlugin(config=sqlalchemy_config)
@@ -48,8 +51,7 @@ sqlalchemy_plugin = SQLAlchemyInitPlugin(config=sqlalchemy_config)
 async def init_db() -> None:
     """Initializes the database."""
     async with sqlalchemy_config.get_engine().begin() as conn:
-        conn.engine
-        await conn.run_sync(UUIDAuditBase.metadata.create_all)
+        await conn.run_sync(UUIDBase.metadata.create_all)
 
 
 def get_db_connection(app: Litestar) -> "AsyncEngine":
@@ -83,7 +85,7 @@ app = Litestar(
         IngredientController,
         AuthController,
     ],
-    on_startup=[get_db_connection],
+    on_startup=[init_db],
     plugins=[SQLAlchemyInitPlugin(config=sqlalchemy_config)],
     dependencies={"limit_offset": Provide(provide_limit_offset_pagination)},
     openapi_config=OpenAPIConfig(

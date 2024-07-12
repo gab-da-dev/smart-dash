@@ -1,5 +1,23 @@
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, Text, UniqueConstraint, Uuid
-from sqlalchemy.orm import Load, Mapped, joinedload, load_only, mapped_column, noload, relationship, selectinload
+from sqlalchemy import (
+    Boolean,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    Text,
+    UniqueConstraint,
+    Uuid,
+)
+from sqlalchemy.orm import (
+    Load,
+    Mapped,
+    joinedload,
+    load_only,
+    mapped_column,
+    noload,
+    relationship,
+    selectinload,
+)
 from uuid import UUID
 
 from sqlalchemy import Float, ForeignKey, Text, Uuid, select
@@ -7,48 +25,57 @@ from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 
 from src.enums import DeliveryStatus, OrderType, Rating
 
+Base = UUIDAuditBase()
+
 
 class Product(UUIDAuditBase):
-
     __tablename__ = "product"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     description: Mapped[str] = mapped_column(Text(), nullable=False)
     image: Mapped[str] = mapped_column(Text(), nullable=False)
-    product_category_id: Mapped[UUID] = mapped_column(Uuid(),ForeignKey("product_category.id"), nullable=True)
-    price:  Mapped[float] = mapped_column(Float(), nullable=False)
+    product_category_id: Mapped[UUID] = mapped_column(
+        Uuid(), ForeignKey("product_category.id"), nullable=True
+    )
+    price: Mapped[float] = mapped_column(Float(), nullable=False)
     prep_time: Mapped[str] = mapped_column(Text(), nullable=False)
     # size_pricing: Mapped[Author] = relationship(lazy="joined", innerjoin=True, viewonly=True)
-    #relationship
-    product_ingredients: Mapped[list["ProductIngredient"]] = relationship(lazy="selectin")
+    # relationship
+    product_ingredients: Mapped[list["ProductIngredient"]] = relationship(
+        lazy="selectin"
+    )
     product_size: Mapped[list["ProductSize"]] = relationship(lazy="selectin")
     # order: Mapped[list["OrderProduct"]] = relationship(lazy="selectin")
 
-class ProductIngredient(UUIDAuditBase):
 
+class ProductIngredient(UUIDAuditBase):
     __tablename__ = "product_ingredients"
 
-    product_id: Mapped[UUID] = mapped_column(Uuid(),ForeignKey("product.id"), nullable=True)
-    ingredient_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("ingredient.id"), nullable=True)
+    product_id: Mapped[UUID] = mapped_column(
+        Uuid(), ForeignKey("product.id"), nullable=True
+    )
+    ingredient_id: Mapped[UUID] = mapped_column(
+        Uuid(), ForeignKey("ingredient.id"), nullable=True
+    )
 
     ingredient: Mapped["Ingredient"] = relationship(lazy="selectin")
 
-__table_args__ = (
-        UniqueConstraint('product_id', 'ingredient_id'),
-    )
-class Ingredient(UUIDAuditBase):
 
+__table_args__ = (UniqueConstraint("product_id", "ingredient_id"),)
+
+
+class Ingredient(UUIDAuditBase):
     __tablename__ = "ingredient"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     price: Mapped[float] = mapped_column(Float(), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    
+
     # product: Mapped[Product] = relationship()
 
-class ProductCategory(UUIDAuditBase):
 
+class ProductCategory(UUIDAuditBase):
     __tablename__ = "product_category"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -60,7 +87,6 @@ class ProductCategory(UUIDAuditBase):
 
 
 class ProductSize(UUIDAuditBase):
-
     __tablename__ = "product_size"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -68,12 +94,13 @@ class ProductSize(UUIDAuditBase):
     description: Mapped[str] = mapped_column(Text(), nullable=True)
     price: Mapped[float] = mapped_column(Float(), nullable=True)
 
-    product_id: Mapped[UUID] = mapped_column(Uuid(),ForeignKey("product.id"), nullable=True)
+    product_id: Mapped[UUID] = mapped_column(
+        Uuid(), ForeignKey("product.id"), nullable=True
+    )
     # size_pricing: Mapped[Author] = relationship(lazy="joined", innerjoin=True, viewonly=True)
 
 
 class StoreProfile(UUIDAuditBase):
-
     __tablename__ = "store_profile"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -86,11 +113,9 @@ class StoreProfile(UUIDAuditBase):
     active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     logo: Mapped[str] = mapped_column(Text(), nullable=False)
     header_image: Mapped[str] = mapped_column(Text(), nullable=False)
-    
 
 
 class User(UUIDAuditBase):
-
     __tablename__ = "user"
 
     first_name: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -105,7 +130,9 @@ class Order(UUIDAuditBase):
 
     address: Mapped[str] = mapped_column(Text(), nullable=True)
     collect_status: Mapped[bool] = mapped_column(Boolean(), nullable=True)
-    delivery_status: Mapped[DeliveryStatus] = mapped_column(Enum(DeliveryStatus), nullable=True)
+    delivery_status: Mapped[DeliveryStatus] = mapped_column(
+        Enum(DeliveryStatus), nullable=True
+    )
     delivery_cost: Mapped[float] = mapped_column(Float(), nullable=True)
     distance: Mapped[float] = mapped_column(Float(), nullable=True)
     driver_latitude: Mapped[str] = mapped_column(Text(), nullable=True)
@@ -121,33 +148,35 @@ class Order(UUIDAuditBase):
     skip_comment: Mapped[bool] = mapped_column(Boolean(), nullable=True)
     user_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("user.id"))
 
-    #relationship
+    # relationship
     order: Mapped[list["OrderProduct"]] = relationship(lazy="selectin")
 
 
 class OrderProduct(UUIDAuditBase):
-
     __tablename__ = "order_product"
 
     order_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("order.id"))
     product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("product.id"))
     note: Mapped[str] = mapped_column(Text(), nullable=True)
-     #relationship
-    OrderProductIngredient: Mapped[list["OrderProductIngredient"]] = relationship(lazy="selectin")
+    # relationship
+    OrderProductIngredient: Mapped[list["OrderProductIngredient"]] = relationship(
+        lazy="selectin"
+    )
     # user: Mapped['OrderProductIngredient'] = relationship(back_populates="orders", lazy="selectin")
 
 
 class OrderProductIngredient(UUIDAuditBase):
-
     __tablename__ = "order_product_ingredient"
 
-    order_product_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("order_product.id"))
+    order_product_id: Mapped[UUID] = mapped_column(
+        Uuid(), ForeignKey("order_product.id")
+    )
     ingredient_id: Mapped[UUID] = mapped_column(Uuid(), ForeignKey("ingredient.id"))
-    #relationship
+    # relationship
     # OrderProductIngredient: Mapped[list["OrderProductIngredient"]] = relationship(lazy="selectin")
-    
-class Promotion(UUIDAuditBase):
 
+
+class Promotion(UUIDAuditBase):
     __tablename__ = "promotion"
 
     product_id: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -162,6 +191,8 @@ class Role(UUIDAuditBase):
     __tablename__ = "role"
 
     name: Mapped[str] = mapped_column(Text(), nullable=False)
+
+
 class UserRole(UUIDAuditBase):
     __tablename__ = "user_role"
 
