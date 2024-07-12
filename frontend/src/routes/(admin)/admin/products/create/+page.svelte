@@ -89,10 +89,6 @@
     }
 </script>
 
-<svelte:head>
-    <link rel="stylesheet" href="../../src/output.css" />
-    <!-- CSS Theme -->
-</svelte:head>
 <div>
     <h2 class="text-2xl font-bold mb-4">Create Product</h2>
     <form action="/create-product" method="POST" enctype="multipart/form-data">
@@ -153,7 +149,10 @@
                         {/each}
                         <!-- </div> -->
                     </div>
-                {/await}
+                    <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="flex flex-col"></div>
         </div>

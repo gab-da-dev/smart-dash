@@ -35,6 +35,8 @@
 <a href="products/create"
 			class="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-black rounded-lg text-[15px] cursor-pointer active:scale-[.97]">
 			Create</a>
+      <button class="">Submit</button>
+  
     <DataTable {columns} data={value.items} pageSize={5} />
 {/await}
 <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
