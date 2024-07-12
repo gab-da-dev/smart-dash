@@ -10,3 +10,5 @@ alembic
 PyJWT
 python-jose
 passlib
+pytest 
+httpx
