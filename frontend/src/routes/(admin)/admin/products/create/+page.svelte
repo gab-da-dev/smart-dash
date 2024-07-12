@@ -27,6 +27,11 @@
 
     //   });
     // }
+    function validate(params) {
+        if (product.name == "") {
+            return;
+        }
+    }
 
     async function submit() {
         try {
