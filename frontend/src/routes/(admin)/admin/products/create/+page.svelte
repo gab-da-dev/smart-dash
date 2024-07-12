@@ -6,6 +6,7 @@
     import Checkbox from "$lib/components/UI/Checkbox.svelte";
     import Upload from "$lib/components/UI/Upload.svelte";
     import DropDownSelect from "$lib/components/UI/DropDownSelect.svelte";
+    import Button from "$lib/components/UI/Button.svelte";
     let product = {
         name: "test",
         active: true,
@@ -147,23 +148,20 @@
                                 </div>
                             </div>
                         {/each}
-                        <!-- </div> -->
                     </div>
-                    <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
-                  </div>
-                </div>
-              </div>
+                {/await}
             </div>
             <div class="flex flex-col"></div>
         </div>
 
         <div>
-            <button
+            <!-- <button
                 on:click={submit}
                 type="button"
                 class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] flex items-center gap-4 px-4 capitalize"
                 >Create Product</button
-            >
+            > -->
+            <Button on:click={submit}></Button>
         </div>
     </form>
 </div>
