@@ -1,4 +1,5 @@
 <script>
+  import ButtonLink from "$lib/components/UI/ButtonLink.svelte";
     import {
         getRequest,
     } from "$lib/services/http_service";
@@ -32,12 +33,9 @@
 
 
 {#await getRequest('product/all') then value}
-<a href="products/create"
-			class="px-3 py-1 shadow-lg shadow-gray-500/50 bg-black text-black rounded-lg text-[15px] cursor-pointer active:scale-[.97]">
-			Create</a>
-      <button class="">Submit</button>
-  
-    <DataTable {columns} data={value.items} pageSize={5} />
+
+
+    <DataTable {columns} data={value.items} pageSize={5} create_url={'products/create'}/>
 {/await}
 <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
   </div>

@@ -100,12 +100,12 @@
     <form action="/create-product" method="POST" enctype="multipart/form-data">
         <Input label={"Name"} value={product.name} /><br />
         <TextArea label={"Description"} value={product.description} /><br />
-        <!-- <Checkbox label={"Active"} value={product.active} /> -->
-        <Upload /><br />
-        <DropDownSelect
-            label={"Category"}
-            value={product.product_category_id}
-        /><br />
+        <Checkbox label={"Active"} value={product.active} /><br />
+        <!-- <Upload /><br /> -->
+        {#await getRequest("/product-category/all") then value}
+            <DropDownSelect data={value} label={'Category'}/>
+        {/await}
+        <br />
         <div class="mb-4">
             <label for="image" class="block text-sm font-medium text-gray-700"
                 >Image</label
@@ -134,7 +134,7 @@
                             <div class="flex items-start mb-6">
                                 <div class="flex items-center h-5">
                                     <input
-                                        id="remember"
+                                        id={ingredient.name}
                                         aria-describedby="remember"
                                         type="checkbox"
                                         name="active"

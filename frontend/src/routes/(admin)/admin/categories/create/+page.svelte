@@ -1,4 +1,8 @@
 <script>
+  import Checkbox from "$lib/components/UI/Checkbox.svelte";
+  import Input from "$lib/components/UI/Input.svelte";
+  import TextArea from "$lib/components/UI/TextArea.svelte";
+  import Upload from "$lib/components/UI/Upload.svelte";
     import {
         getRequest,
         postRequest
@@ -86,23 +90,12 @@
 <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-6">Create Category</h2>
     <form action="/create-product" method="POST" enctype="multipart/form-data">
-        <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-            <input type="text" name="name" bind:value={product.name}
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-        </div>
+        
 
-        <div class="mb-4">
-            <label for="active" class="block text-sm font-medium text-gray-700">Active</label>
-            <input type="checkbox" name="active" bind:checked={product.active}
-                class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-        </div>
-
-        <div class="mb-4">
-            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-            <textarea name="description" bind:value={product.description}
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
-        </div>
+        <Input label={"Name"} element_id={'name'} value={product.name} />
+        <TextArea label={"Description"} value={product.description} /><br />
+        <Checkbox label={"Active"} value={product.active} />
+        <!-- <Upload /><br /> -->
 
         <div class="mb-4">
             <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
