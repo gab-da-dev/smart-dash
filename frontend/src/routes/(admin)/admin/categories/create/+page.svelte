@@ -1,5 +1,6 @@
 <script>
   import Checkbox from "$lib/components/UI/Checkbox.svelte";
+  import Form from "$lib/components/UI/Form.svelte";
   import Input from "$lib/components/UI/Input.svelte";
   import TextArea from "$lib/components/UI/TextArea.svelte";
   import Upload from "$lib/components/UI/Upload.svelte";
@@ -76,18 +77,13 @@
     }
 </script>
 
-<svelte:head>
-    <link rel="stylesheet" href="../../src/output.css"/>
-    <!-- CSS Theme -->
-</svelte:head>
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Create Category</h2><br/>
-    <form action="/create-product" method="POST" enctype="multipart/form-data">
+    <Form label={"Create category"} on:handleSubmit={()=>{
+        submit()
+    }}>
         
-
-        <Input label={"Name"} element_id={'name'} value={product.name} /><br />
-        <TextArea label={"Description"} value={product.description} /><br />
-        <Checkbox label={"Active"} value={product.active} />
+        <Input label={"Name"} bind:input_value={product.name} errors={errors} element_id={'name'}/><br />
+        <TextArea label={"Description"} bind:value={product.description} errors={errors} element_id={'description'}/><br />
+        <Checkbox label={"Active"} bind:value={product.active} /><br />
         <!-- <Upload /><br /> -->
 
         <div class="mb-4">
@@ -100,5 +96,4 @@
                 <button on:click={submit} type="button" class="text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize">Create Category</button>
             </div>
             
-        </form>
-    </div>
+        </Form>
