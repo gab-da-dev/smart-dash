@@ -7,13 +7,14 @@
     import Upload from "$lib/components/UI/Upload.svelte";
     import DropDownSelect from "$lib/components/UI/DropDownSelect.svelte";
     import Button from "$lib/components/UI/Button.svelte";
-//   import validate from "validate.js";
-  import Form from "$lib/components/UI/Form.svelte";
-  import Number from "$lib/components/UI/Number.svelte";
   import validate from "validate.js";
-    
+  import Form from "$lib/components/UI/Form.svelte";
+  import { onMount } from 'svelte';
     let errors = {};
 
+    // async function onMount() {
+    //     alert('test')
+    // }
     const productConstraints = {
     name: {
         presence: { allowEmpty: false, message: "^Name is required" }
@@ -51,7 +52,7 @@
 
 // Product object
 let product = {
-    name: 'test',
+    name: '',
     active: true,
     description: '',
     image: null,
@@ -61,55 +62,54 @@ let product = {
     ingredients: []
 };
 
-// function validate_form(product) {
-//     // errors = validate(product, productConstraints) || {};
+function validate_form() {
+    console.error("Validation errors:", product);
+    errors = validate(product, productConstraints) || {};
+    let validationResult = validate(product, productConstraints);
 
-//     // const validationResult = validate(product, productConstraints);
-//     console.log(product)
-//     if (validationResult) {
-//         // Handle validation errors
-//         // console.error("Validation errors:", validationResult);
-//         // // You can display errors to the user here, e.g., using alert or rendering errors on the page
-//         // alert("Validation failed. Please check the form for errors.");
-//         return false; // Exit the function early if validation fails
-//         alert("tests.");
-//     }
-//     return true;
+    if (validationResult) {
+        // Handle validation errors
+        console.error("Validation errors:", validationResult, product);
+        // // You can display errors to the user here, e.g., using alert or rendering errors on the page
+        // alert("Validation failed. Please check the form for errors.");
+        return false; // Exit the function early if validation fails
+        alert("tests.");
+    }
+    return true;
 
-// }
+}
 
 async function submit() {
+    alert('test')
     // Validate the product object
-    console.log(product)
-    // errors = validate(product, productConstraints) || {};
+    // if (validate_form())
 
-    const validationResult = validate(product, productConstraints);
-    console.log(product, validationResult)
+    // errors = validate(product, productConstraints) || {};
+    // let validationResult = validate(product, productConstraints);
+
     // if (validationResult) {
     //     // Handle validation errors
-    //     console.error("Validation errors:", validationResult);
+    //     console.error("Validation errors:", validationResult, product);
     //     // // You can display errors to the user here, e.g., using alert or rendering errors on the page
     //     // alert("Validation failed. Please check the form for errors.");
     //     return false; // Exit the function early if validation fails
-    //     alert("tests.");
+        
     // }
     
-    // try {
-    //     // Send a POST request with the FormData
-    //     const response = await postRequest('/product', product, {
-    //             "Content-Type": "multipart/form-data",
-    //         });
-    //     window.location.href = "/admin/products";
-    //     // Log the response data
-    //     console.log(response);
+    try {
+        // Send a POST request with the FormData
+        const response = await postRequest('/product', product);
+        window.location.href = "/admin/products";
+        // Log the response data
+        console.log(response);
 
-    //     // Return the items from the response data
-    //     return response.items;
-    // } catch (error) {
-    //     // Handle any errors that occurred during the request
-    //     console.error('Error submitting product:', error);
-    //     throw error; // Rethrow the error if you want to propagate it further
-    // }
+        // Return the items from the response data
+        return response.items;
+    } catch (error) {
+        // Handle any errors that occurred during the request
+        console.error('Error submitting product:', error);
+        throw error; // Rethrow the error if you want to propagate it further
+    }
 }
 
     function handleFileInput(event) {
@@ -119,13 +119,13 @@ async function submit() {
 </script>
 
 <div>
-    <div>
-        <Input label={"Name"} bind:input_value={product.name} errors={errors} element_id={'name'}/><br />
-        <TextArea label={"Description"} bind:value={product.description} errors={errors} element_id={'description'}/><br />
-        <Checkbox label={"Active"} bind:value={product.active} /><br />
+    <Form label="Create Product" on:handleSubmit={submit}>
+        <Input label={"Name"} value={product.name} errors={errors} element_id={'name'}/><br />
+        <TextArea label={"Description"} value={product.description} errors={errors} element_id={'description'}/><br />
+        <Checkbox label={"Active"} value={product.active} /><br />
         <!-- <Upload /><br /> -->
         {#await getRequest("/product-category/all") then value}
-            <DropDownSelect data={value} bind:value={product.product_category_id} label={'Category'} errors={errors} element_id={'product_category_id'}/>
+            <DropDownSelect data={value} label={'Category'} errors={errors} element_id={'product_category_id'}/>
         {/await}
         <br />
         <div class="mb-4">
@@ -140,10 +140,11 @@ async function submit() {
             />
         </div>
         <br />
-        <Number label={"Price"} bind:value={product.price}  errors={errors} element_id={'price'}/><br />
-        <Number
+        <Input label={"Price"} value={product.price} type={"number"}  errors={errors} element_id={'price'}/><br />
+        <Input
             label={"Preparation Time"}
-            bind:value={product.prep_time}
+            value={product.prep_time}
+            type={"number"}
             errors={errors}
             element_id={'prep_time'}
         /><br />
@@ -180,13 +181,6 @@ async function submit() {
             </div>
             <div class="flex flex-col"></div>
         </div>
-        <div>
-            <button
-                on:click={submit}
-                type="button"
-                class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] flex items-center gap-4 px-4 capitalize"
-                >Create</button>
-        </div>
-    </div>
+    </Form>
     
 </div>

@@ -46,9 +46,9 @@ async function getIngredients() {
 </script>
 
 <svelte:head>
-    <link rel="stylesheet" type="text/css" href="http://localhost:5173/css/core.css"/>
+    <link rel="stylesheet" type="text/css" href="http://localhost:5700/css/core.css"/>
     <!-- CSS Theme -->
-    <link id="theme" rel="stylesheet" href="http://localhost:5173/css/theme-beige.css" />
+    <link id="theme" rel="stylesheet" href="http://localhost:5700/css/theme-beige.css" />
 </svelte:head>
 
 

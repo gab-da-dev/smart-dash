@@ -1,5 +1,6 @@
 <script>
-  import Input from "$lib/components/UI/Input.svelte";
+  import Button from "$lib/components/UI/Button.svelte";
+import Input from "$lib/components/UI/Input.svelte";
     import {
         getRequest,
         postRequest
@@ -74,12 +75,12 @@
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
         </div>
 
-        
+        <Button on:click={submit} label={'Create'}></Button>
         
                 
-            <div>
+            <!-- <div>
                 <button on:click={submit} type="button" class="w-full bg-green-500 text-black px-4 py-2 rounded-md shadow-sm hover:bg-green-700">Create Ingredient</button>
             </div>
-            
+             -->
         </form>
     </div>

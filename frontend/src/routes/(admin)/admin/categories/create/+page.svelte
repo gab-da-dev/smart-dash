@@ -12,21 +12,12 @@
     } from "@sveltejs/kit";
 
     let product = {
-        name: 'test',
+        name: '',
         active: true,
-        description: 'test',
+        description: '',
         image: null,
     }
 
-    // async function submit() {
-    //     console.log(JSON.stringify(product))
-    //     await postRequest(`/product`, JSON.stringify(product))
-    //   .then(data => {
-    //     console.log(data)
-    //     return data.items;
-
-    //   });
-    // }
 
     async function submit() {
         try {
@@ -63,7 +54,9 @@
             console.log('FormData:', formData);
 
             // Send a POST request with the FormData
-            const response = await postRequest('/product-category', formData);
+            const response = await postRequest('/product-category', formData, {
+                "Content-Type": "multipart/form-data",
+            });
 
             window.location.href = "/admin/categories";
 
@@ -88,11 +81,11 @@
     <!-- CSS Theme -->
 </svelte:head>
 <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Create Category</h2>
+    <h2 class="text-2xl font-bold mb-6">Create Category</h2><br/>
     <form action="/create-product" method="POST" enctype="multipart/form-data">
         
 
-        <Input label={"Name"} element_id={'name'} value={product.name} />
+        <Input label={"Name"} element_id={'name'} value={product.name} /><br />
         <TextArea label={"Description"} value={product.description} /><br />
         <Checkbox label={"Active"} value={product.active} />
         <!-- <Upload /><br /> -->
