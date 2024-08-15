@@ -1,24 +1,35 @@
 <script>
-  import Button from "$lib/components/UI/Button.svelte";
-import Input from "$lib/components/UI/Input.svelte";
-    import {
-        getRequest,
-        postRequest
-    } from "$lib/services/http_service";
-    import {
-        json
-    } from "@sveltejs/kit";
+    import Button from "$lib/components/UI/Button.svelte";
+    import Checkbox from "$lib/components/UI/Checkbox.svelte";
+    import Input from "$lib/components/UI/Input.svelte";
+    import { getRequest, postRequest } from "$lib/services/http_service";
+    import Number from "$lib/components/UI/Number.svelte";
+    import validate from "validate.js";
 
-    let product = {
-        name: 'test',
+    let errors = {};
+
+    const productIngredientConstraints = {
+        name: {
+            presence: { allowEmpty: false, message: "^Name is required" },
+        },
+        active: {
+            type: "boolean",
+        },
+
+        price: {
+            numericality: {
+                greaterThanOrEqualTo: 0,
+                message: "^Price must be a positive number",
+            },
+        },
+    };
+
+    // Product object
+    let product_ingredient = {
+        name: "",
         active: true,
-        description: 'test',
-        image: null,
-        product_category_id: 'aaa0f3d1-339b-4a2d-acaa-092210823135',
-        price: 2.3,
-        prep_time: 5,
-        ingredients: []
-    }
+        price: 0,
+    };
 
     // async function submit() {
     //     console.log(JSON.stringify(product))
@@ -32,55 +43,53 @@ import Input from "$lib/components/UI/Input.svelte";
 
     async function submit() {
         try {
+            errors = validate(product_ingredient, productIngredientConstraints);
+
+            if (errors) {
+                console.error("Validation errors:", errors);
+                return false; // Exit the function early if validation fails
+            } else {
+                errors = {};
+            }
             // Send a POST request with the FormData
-            const response = await postRequest('/ingredient', product);
+            const response = await postRequest(
+                "/ingredient",
+                product_ingredient,
+            );
             window.location.href = "/admin/ingredients";
             // Log the response data
             console.log(response);
-
 
             // Return the items from the response data
             return response.items;
         } catch (error) {
             // Handle any errors that occurred during the request
-            console.error('Error submitting product:', error);
+            console.error("Error submitting product:", error);
             throw error; // Rethrow the error if you want to propagate it further
         }
     }
-
-    function handleFileInput(event) {
-        const file = event.target.files[0];
-        product.image = file;
-    }
 </script>
 
-<svelte:head>
-    <link rel="stylesheet" href="../../src/output.css"/>
-    <!-- CSS Theme -->
-</svelte:head>
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Create ingredient</h2>
-    <form action="/create-product" method="POST" enctype="multipart/form-data">
-        <Input label={"Name"} value={product.name} />
-
-        <div class="mb-4">
-            <label for="active" class="block text-sm font-medium text-gray-700">Active</label>
-            <input type="checkbox" name="active" bind:checked={product.active}
-                class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-        </div>
-
-        <div class="mb-4">
-            <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
-            <input type="number" step="0.01" name="price" bind:value={product.price}
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-        </div>
-
-        <Button on:click={submit} label={'Create'}></Button>
-        
-                
-            <!-- <div>
-                <button on:click={submit} type="button" class="w-full bg-green-500 text-black px-4 py-2 rounded-md shadow-sm hover:bg-green-700">Create Ingredient</button>
-            </div>
-             -->
-        </form>
+<div>
+    <Input
+        label={"Name"}
+        bind:input_value={product_ingredient.name}
+        {errors}
+        element_id={"name"}
+    /><br />
+    <Checkbox label={"Active"} bind:value={product_ingredient.active} /><br />
+    <Number
+        label={"Price"}
+        bind:value={product_ingredient.price}
+        {errors}
+        element_id={"price"}
+    /><br />
+    <div>
+        <button
+            on:click={submit}
+            type="button"
+            class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] flex items-center gap-4 px-4 capitalize"
+            >Create</button
+        >
     </div>
+</div>

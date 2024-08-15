@@ -13,14 +13,32 @@ from litestar.handlers.http_handlers.decorators import delete, post
 from litestar.pagination import OffsetPagination
 from litestar.params import Parameter
 from litestar.repository.filters import LimitOffset
-from db.repositories.product_size_repository import ProductSizeRepository, provide_product_size_repo
+from db.repositories.product_size_repository import (
+    ProductSizeRepository,
+    provide_product_size_repo,
+)
 from schemas.product_size_schema import ProductSizeCreate, ProductSizeRead
-from schemas.product_schema import ProductCreate, ProductIngredientCreate, ProductIngredientRead, ProductRead, ProductReadBasic, ProductReadFull, ProductUpdate
+from schemas.product_schema import (
+    ProductCreate,
+    ProductIngredientCreate,
+    ProductIngredientRead,
+    ProductRead,
+    ProductReadBasic,
+    ProductReadFull,
+    ProductUpdate,
+)
 from db.models.models import Product, ProductIngredient, ProductSize
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
-from db.repositories.product_repository import ProductRepository, provide_product_details_repo, provide_products_repo
-from db.repositories.product_ingredient_repository import provide_product_ingredients_repo, ProductIngredientRepository
+from db.repositories.product_repository import (
+    ProductRepository,
+    provide_product_details_repo,
+    provide_products_repo,
+)
+from db.repositories.product_ingredient_repository import (
+    provide_product_ingredients_repo,
+    ProductIngredientRepository,
+)
 
 if TYPE_CHECKING:
     pass
@@ -28,13 +46,22 @@ if TYPE_CHECKING:
 UPLOAD_DIRECTORY = Path("uploads")
 UPLOAD_DIRECTORY.mkdir(exist_ok=True)
 
+
 class ProductController(Controller):
     path = "/product"
-    dependencies:ClassVar[dict[str, Provide]] = {"repository": Provide(provide_products_repo)}
+    dependencies: ClassVar[dict[str, Provide]] = {
+        "repository": Provide(provide_products_repo)
+    }
 
     tags: ClassVar[list[str]] = ["product"]
 
-    @post(path="/", exclude_from_auth=True, dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+    @post(
+        path="/",
+        exclude_from_auth=True,
+        dependencies={
+            "product_ingredients_repo": Provide(provide_product_ingredients_repo)
+        },
+    )
     async def create_product(
         self,
         repository: ProductRepository,
@@ -48,24 +75,32 @@ class ProductController(Controller):
         with open(file_location, "wb") as f:
             f.write(await data.image.read())
             obj = await repository.add(
-                Product(image=random_filename, **data.model_dump(exclude_unset=True, exclude_none=True, exclude=['ingredients', 'image'])),
-
+                Product(
+                    image=random_filename,
+                    **data.model_dump(
+                        exclude_unset=True,
+                        exclude_none=True,
+                        exclude=["ingredients", "image"],
+                    ),
+                ),
             )
         await repository.session.commit()
-         # Extract the product ID
+        # Extract the product ID
         product_id = obj.id
-
         # Update ingredients with product ID
         for ingredient_id in data.ingredients:
-            await product_ingredients_repo.add(ProductIngredient(product_id=product_id,ingredient_id=ingredient_id))
+            await product_ingredients_repo.add(
+                ProductIngredient(product_id=product_id, ingredient_id=ingredient_id)
+            )
 
         # await product_ingredients_repo.session.commit()
         return ProductRead.model_validate(obj)
-    
-    
 
-
-    @get(path="/{product_id:uuid}", exclude_from_auth=True, dependencies={"products_repo": Provide(provide_product_details_repo)})
+    @get(
+        path="/{product_id:uuid}",
+        exclude_from_auth=True,
+        dependencies={"products_repo": Provide(provide_product_details_repo)},
+    )
     async def get_product(
         self,
         products_repo: ProductRepository,
@@ -75,19 +110,19 @@ class ProductController(Controller):
         ),
     ) -> ProductReadFull:
         """Get an existing product."""
-        
+
         obj = await products_repo.get(product_id)
         # obj = await products_repo.get_one_or_none(product_id)
         return ProductReadFull.model_validate(obj)
-        
+
     # TODO: check how to put in a not found exception
-    
+
     @get("/all", exclude_from_auth=True)
     async def list_all_products(
         self,
         repository: ProductRepository,
         limit_offset: LimitOffset,
-        )-> OffsetPagination[Product]:
+    ) -> OffsetPagination[Product]:
         """Get list of products."""
         results, total = await repository.list_and_count(limit_offset)
         type_adapter = TypeAdapter(list[ProductReadBasic])
@@ -97,7 +132,7 @@ class ProductController(Controller):
             limit=limit_offset.limit,
             offset=limit_offset.offset,
         )
-    
+
     @put(path="/{product_id:uuid}")
     async def update_product(
         self,
@@ -116,7 +151,6 @@ class ProductController(Controller):
         await repository.session.commit()
         return ProductRead.model_validate(obj)
 
-
     @delete(path="/{product_id:uuid}")
     async def delete_product(
         self,
@@ -131,8 +165,12 @@ class ProductController(Controller):
         _ = await repository.delete(product_id)
         await repository.session.commit()
 
-
-    @post(path="/{product_id:uuid}/product-ingredient", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+    @post(
+        path="/{product_id:uuid}/product-ingredient",
+        dependencies={
+            "product_ingredients_repo": Provide(provide_product_ingredients_repo)
+        },
+    )
     async def create_product_ingredient(
         self,
         product_id: UUID,
@@ -141,13 +179,17 @@ class ProductController(Controller):
     ) -> ProductIngredientRead:
         """Create a new product ingredient."""
         obj = await product_ingredients_repo.add(
-            ProductIngredient(product_id=product_id,ingredient_id=data.ingredient_id),
-
+            ProductIngredient(product_id=product_id, ingredient_id=data.ingredient_id),
         )
         await product_ingredients_repo.session.commit()
         return ProductIngredientRead.model_validate(obj)
-    
-    @delete(path="/{product_id:uuid}/product-ingredient/{product_ingredient_id:uuid}", dependencies={"product_ingredients_repo": Provide(provide_product_ingredients_repo)})
+
+    @delete(
+        path="/{product_id:uuid}/product-ingredient/{product_ingredient_id:uuid}",
+        dependencies={
+            "product_ingredients_repo": Provide(provide_product_ingredients_repo)
+        },
+    )
     async def delete_product_ingredient(
         self,
         product_ingredient_id: UUID,
@@ -157,8 +199,10 @@ class ProductController(Controller):
         await product_ingredients_repo.delete(product_ingredient_id)
         product_ingredients_repo.session.commit()
 
-
-    @post(path="/{product_id:uuid}/product-size", dependencies={"product_size_repo": Provide(provide_product_size_repo)})
+    @post(
+        path="/{product_id:uuid}/product-size",
+        dependencies={"product_size_repo": Provide(provide_product_size_repo)},
+    )
     async def create_product_size(
         self,
         product_id: UUID,
@@ -167,13 +211,18 @@ class ProductController(Controller):
     ) -> ProductSizeRead:
         """Create a new product ingredient."""
         obj = await product_size_repo.add(
-            ProductSize(product_id=product_id,**data.model_dump(exclude_unset=True, exclude_none=True)),
-
+            ProductSize(
+                product_id=product_id,
+                **data.model_dump(exclude_unset=True, exclude_none=True),
+            ),
         )
         await product_size_repo.session.commit()
         return ProductSizeRead.model_validate(obj)
-    
-    @delete(path="/{product_id:uuid}/product-size/{product_size_id:uuid}", dependencies={"product_size_repo": Provide(provide_product_size_repo)})
+
+    @delete(
+        path="/{product_id:uuid}/product-size/{product_size_id:uuid}",
+        dependencies={"product_size_repo": Provide(provide_product_size_repo)},
+    )
     async def delete_product_size(
         self,
         product_size_id: UUID,
@@ -186,7 +235,6 @@ class ProductController(Controller):
 
 @get(path="/uploads/{filename:str}", exclude_from_auth=True)
 async def serve_product_file(filename: str) -> Response:
-    
     file_path = UPLOAD_DIRECTORY / filename
     if file_path.exists():
         return Response(

@@ -35,7 +35,7 @@ class IngredientController(Controller):
 
     tags: ClassVar[list[str]] = ["ingredient"]
 
-    @post(path="/")
+    @post(path="/", exclude_from_auth=True)
     async def create_ingredient(
         self,
         repository: IngredientRepository,
@@ -53,6 +53,7 @@ class IngredientController(Controller):
     @get(
         path="/{ingredient_id:uuid}",
         dependencies={"ingredients_repo": Provide(provide_ingredient_details_repo)},
+        exclude_from_auth=True,
     )
     async def get_ingredient(
         self,
@@ -86,7 +87,7 @@ class IngredientController(Controller):
             offset=limit_offset.offset,
         )
 
-    @put(path="/{ingredient_id:uuid}")
+    @put(path="/{ingredient_id:uuid}", exclude_from_auth=True)
     async def update_ingredient(
         self,
         repository: IngredientRepository,
