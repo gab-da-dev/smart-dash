@@ -9,6 +9,8 @@ services:
       - ./backend/.env_local
     ports:
       - "5600:5432"
+    networks:
+      - app-network
 
   backend:
     image: python:3.11-slim-bullseye
@@ -18,19 +20,12 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - 5800:8000
+      - "5800:8000"
     environment:
       - PYTHONDONTWRITEBYTECODE=1
-    command:
-      [
-        "uvicorn",
-        "app:app",
-        "--reload",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8000"
-      ]
+    command: [ "uvicorn", "app:app", "--reload", "--host", "0.0.0.0", "--port", "8000" ]
+    networks:
+      - app-network
 
   frontend:
     image: node:alpine
@@ -43,3 +38,9 @@ services:
     command: sh -c "npm install && npm run dev -- --host"
     expose:
       - "5700"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

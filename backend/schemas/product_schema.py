@@ -54,6 +54,7 @@ class ProductReadBasic(BaseModel):
     class Config:
         orm_mode = True
 
+    id: UUID
     name: str
     active: bool
     price: float
