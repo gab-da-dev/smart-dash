@@ -53,7 +53,7 @@ class ProductCategoryController(Controller):
 
         # we override the product_category_repo to use the version that joins the Books in
 
-    @get(path="/{product_id:uuid}", dependencies={"product_category_repo": Provide(provide_product_category_details_repo)})
+    @get(path="/{product_id:uuid}", exclude_from_auth=True, dependencies={"product_category_repo": Provide(provide_product_category_details_repo)})
     async def get_product_category(
         self,
         product_category_repo: ProductCategoryRepository,
@@ -102,7 +102,7 @@ class ProductCategoryController(Controller):
             offset=limit_offset.offset,
         )
     
-    @put(path="/{product_category_id:uuid}")
+    @put(path="/{product_category_id:uuid}", exclude_from_auth=True)
     async def update_product_category(
         self,
         repository: ProductCategoryRepository,

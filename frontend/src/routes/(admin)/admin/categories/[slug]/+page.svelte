@@ -128,48 +128,21 @@
     });
 </script>
 
-<div>
-    <Form label="Edit Product" on:handleSubmit={submit} btn_label={"Update"}>
-        <Input
-            label={"Name"}
-            bind:input_value={product.name}
-            {errors}
-            element_id={"name"}
-        /><br />
-        <TextArea
-            label={"Description"}
-            value={product.description}
-            {errors}
-            element_id={"description"}
-        /><br />
-        <Checkbox label={"Active"} value={product.active} /><br />
+    
+    <Form label={"Update Category"} btn_label={"Update"} on:handleSubmit={()=>{
+        submit()
+    }}>
+        
+        <Input label={"Name"} bind:input_value={product.name} errors={errors} element_id={'name'}/><br />
+        <TextArea label={"Description"} bind:value={product.description} errors={errors} element_id={'description'}/><br />
+        <Checkbox label={"Active"} bind:value={product.active} /><br />
         <!-- <Upload /><br /> -->
-        
-        <br />
+
         <div class="mb-4">
-            <label for="image" class="block text-sm font-medium text-gray-700"
-                >Image</label
-            >
-            <input
-                type="file"
-                name="image"
-                on:change={handleFileInput}
-                class="mt-1 block w-full text-gray-900 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
+            <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
+            <input type="file" name="image" on:change={handleFileInput}
+                class="mt-1 block w-full text-gray-900 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
         </div>
-        <br />
-        <Number
-            label={"Price"}
-            bind:value={product.price}
-            {errors}
-            element_id={"price"}
-        /><br />
-        <Number
-            label={"Preparation Time"}
-            bind:value={product.prep_time}
-            {errors}
-            element_id={"prep_time"}
-        /><br />
-        
-    </Form>
-</div>
+
+          
+        </Form>

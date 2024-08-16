@@ -133,7 +133,7 @@ class ProductController(Controller):
             offset=limit_offset.offset,
         )
 
-    @put(path="/{product_id:uuid}")
+    @put(path="/{product_id:uuid}", exclude_from_auth=True)
     async def update_product(
         self,
         repository: ProductRepository,

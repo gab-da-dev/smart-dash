@@ -2,7 +2,7 @@
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, fetch }) {
     console.log(params)
-    const response = await fetch(`http://backend:8000/product/${params.slug}`);
+    const response = await fetch(`http://backend:8000/product-category/${params.slug}`);
     if (!response.ok) {
         throw new Error('Failed to fetch data');
     }

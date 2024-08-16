@@ -6,6 +6,7 @@
     import DropDownSelect from "$lib/components/UI/DropDownSelect.svelte";
     import Number from "$lib/components/UI/Number.svelte";
     import validate from "validate.js";
+  import Form from "$lib/components/UI/Form.svelte";
 
     let errors = {};
 
@@ -124,8 +125,7 @@
     }
 </script>
 
-<div>
-    <div>
+<Form label="Create Product" on:handleSubmit={submit} btn_label={"Update"}>
         <Input
             label={"Name"}
             bind:input_value={product.name}
@@ -207,13 +207,5 @@
             </div>
             <div class="flex flex-col"></div>
         </div>
-        <div>
-            <button
-                on:click={submit}
-                type="button"
-                class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] flex items-center gap-4 px-4 capitalize"
-                >Create</button
-            >
-        </div>
-    </div>
-</div>
+        
+</Form>

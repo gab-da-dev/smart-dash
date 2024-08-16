@@ -78,8 +78,8 @@ class ProductReadFull(BaseModel):
 
 
 class ProductUpdate(BaseSchema):
+    name: str
     active: bool
-    product_id: str
     description: str
     image: str
     product_category_id: str

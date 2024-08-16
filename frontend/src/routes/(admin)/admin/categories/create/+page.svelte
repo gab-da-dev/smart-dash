@@ -19,6 +19,7 @@
         image: null,
     }
 
+    let errors = {};
 
     async function submit() {
         try {
@@ -77,7 +78,7 @@
     }
 </script>
 
-    <Form label={"Create category"} on:handleSubmit={()=>{
+    <Form label={"Create category"} btn_label={"Create"} on:handleSubmit={()=>{
         submit()
     }}>
         
@@ -92,8 +93,5 @@
                 class="mt-1 block w-full text-gray-900 border border-gray-300 rounded-md cursor-pointer focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
         </div>
 
-            <div>
-                <button on:click={submit} type="button" class="text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize">Create Category</button>
-            </div>
-            
+          
         </Form>

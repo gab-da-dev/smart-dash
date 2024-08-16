@@ -9,8 +9,6 @@
   const columns = [
     { header: 'Name', field: 'name' },
     { header: 'active', field: 'active' },
-    { header: 'price', field: 'price' },
-    { header: 'prep_time', field: 'prep_time' }
   ];
 
   const data = [
@@ -32,7 +30,8 @@
 
 
 {#await getRequest('product-category/all') then value}
-    <DataTable {columns} data={value.items} pageSize={5}  create_url={'categories/create'}/>
+    <DataTable {columns} data={value.items} pageSize={5}  create_url={'product-category/create'}
+    edit_link={"categories"}/>
 {/await}
 <div class="p-6 overflow-x-scroll px-0 pt-0 pb-2">
   </div>
