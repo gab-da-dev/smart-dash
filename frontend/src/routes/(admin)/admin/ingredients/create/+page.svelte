@@ -5,6 +5,7 @@
     import { getRequest, postRequest } from "$lib/services/http_service";
     import Number from "$lib/components/UI/Number.svelte";
     import validate from "validate.js";
+  import Form from "$lib/components/UI/Form.svelte";
 
     let errors = {};
 
@@ -31,15 +32,6 @@
         price: 0,
     };
 
-    // async function submit() {
-    //     console.log(JSON.stringify(product))
-    //     await postRequest(`/product`, JSON.stringify(product))
-    //   .then(data => {
-    //     console.log(data)
-    //     return data.items;
-
-    //   });
-    // }
 
     async function submit() {
         try {
@@ -57,8 +49,6 @@
                 product_ingredient,
             );
             window.location.href = "/admin/ingredients";
-            // Log the response data
-            console.log(response);
 
             // Return the items from the response data
             return response.items;
@@ -70,7 +60,9 @@
     }
 </script>
 
-<div>
+<Form label={"Create ingredient"} btn_label={"Create"} on:handleSubmit={()=>{
+    submit()
+}}>
     <Input
         label={"Name"}
         bind:input_value={product_ingredient.name}
@@ -84,12 +76,5 @@
         {errors}
         element_id={"price"}
     /><br />
-    <div>
-        <button
-            on:click={submit}
-            type="button"
-            class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] flex items-center gap-4 px-4 capitalize"
-            >Create</button
-        >
-    </div>
-</div>
+   
+</Form>

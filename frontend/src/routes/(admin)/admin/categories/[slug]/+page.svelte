@@ -100,8 +100,8 @@
 
         try {
             // Send a POST request with the FormData
-            const response = await putRequest(`/product/${data.id}`, product);
-            window.location.href = "/admin/products";
+            const response = await putRequest(`/product-category/${data.id}`, product);
+            window.location.href = "/admin/categories";
             // Log the response data
             console.log(response);
 

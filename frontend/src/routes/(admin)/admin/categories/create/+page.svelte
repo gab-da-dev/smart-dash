@@ -37,23 +37,11 @@
             // Handle the image field separately if needed
             if (product.image) {
                 formData.append('image', product.image);
-                console.log('lalalala')
             }
 
             // if (product.ingredients) {
             //     formData.append('ingredients', product.ingredients);
             // }
-
-            // To see the appended formData values
-            for (let pair of formData.entries()) {
-                console.log(pair[0]+ ', ' + pair[1]); 
-            }
-
-            // Append the image file to the FormData object
-            // formData.append('image', product.image);
-
-            // Log the FormData object for debugging
-            console.log('FormData:', formData);
 
             // Send a POST request with the FormData
             const response = await postRequest('/product-category', formData, {
